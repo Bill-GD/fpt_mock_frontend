@@ -5,23 +5,23 @@ type Variant = "primary" | "secondary" | "ghost" | "danger";
 type Size = "sm" | "md" | "lg";
 
 const base =
-  "inline-flex items-center justify-center gap-2 rounded-xl font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-900/20 disabled:pointer-events-none disabled:opacity-50 dark:focus-visible:ring-zinc-100/20";
+  "inline-flex items-center justify-center gap-2 rounded-full font-bold border-2 border-[color:var(--border)] transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--primary)]/35 disabled:pointer-events-none disabled:opacity-50 cursor-pointer";
 
 const variantClass: Record<Variant, string> = {
   primary:
-    "bg-zinc-900 text-white hover:bg-zinc-800 dark:bg-zinc-100 dark:text-zinc-950 dark:hover:bg-zinc-200",
+    "bg-[color:var(--primary)] text-white shadow-[4px_4px_0_#1a1a1a] hover:shadow-[6px_6px_0_#1a1a1a] active:shadow-[2px_2px_0_#1a1a1a]",
   secondary:
-    "bg-zinc-100 text-zinc-900 hover:bg-zinc-200 dark:bg-zinc-900 dark:text-zinc-100 dark:hover:bg-zinc-800",
+    "bg-[color:var(--surface-cream)] text-zinc-900 shadow-[4px_4px_0_#1a1a1a] hover:shadow-[6px_6px_0_#1a1a1a] active:shadow-[2px_2px_0_#1a1a1a]",
   ghost:
-    "bg-transparent text-zinc-900 hover:bg-zinc-100 dark:text-zinc-100 dark:hover:bg-zinc-900",
+    "bg-transparent text-zinc-700 border-transparent shadow-none hover:bg-[color:var(--surface-cream)] hover:border-[color:var(--border)]",
   danger:
-    "bg-red-600 text-white hover:bg-red-700 dark:bg-red-500 dark:hover:bg-red-600",
+    "bg-[color:var(--danger)] text-white shadow-[4px_4px_0_#1a1a1a] hover:shadow-[6px_6px_0_#1a1a1a] active:shadow-[2px_2px_0_#1a1a1a]",
 };
 
 const sizeClass: Record<Size, string> = {
-  sm: "h-9 px-3 text-sm",
-  md: "h-11 px-4 text-sm",
-  lg: "h-12 px-5 text-base",
+  sm: "h-9 px-4 text-sm",
+  md: "h-11 px-5 text-sm",
+  lg: "h-12 px-7 text-base",
 };
 
 export type ButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
@@ -66,4 +66,3 @@ export function ButtonLink({
     />
   );
 }
-

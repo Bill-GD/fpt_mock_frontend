@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { Suspense, useMemo } from "react";
 import { useSearchParams } from "next/navigation";
 import { AppShell } from "@/components/layout/app-shell";
 import { Badge } from "@/components/ui/badge";
@@ -8,7 +8,7 @@ import { ButtonLink } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { calculateExamResult, mockExam, normalizeExamCode, parseSerializedAnswers, type OptionId } from "../mock-exam";
 
-export default function StudentResultPage() {
+function StudentResultContent() {
   const searchParams = useSearchParams();
 
   const examCode = normalizeExamCode(searchParams.get("code") ?? "");
@@ -31,17 +31,17 @@ export default function StudentResultPage() {
         { href: "/student/history", label: "Lịch sử bài thi" },
       ]}
     >
-      <div className="grid gap-4">
-        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+      <div className="page-stack">
+        <div className="section-head flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h1 className="text-xl font-semibold text-zinc-900 dark:text-zinc-100">Kết quả</h1>
-            <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
+            <h1 className="text-2xl font-black text-zinc-900">Kết quả</h1>
+            <p className="mt-1 text-sm text-zinc-600">
               {hasSubmission ? (
                 <>
-                  Bài thi <span className="font-medium">{mockExam.title}</span>{" "}
+                  Bài thi <span className="font-bold">{mockExam.title}</span>{" "}
                   {examCode ? (
                     <>
-                      • Mã phòng: <span className="font-medium">{examCode}</span>
+                      • Mã phòng: <span className="font-bold">{examCode}</span>
                     </>
                   ) : null}
                 </>
@@ -58,7 +58,7 @@ export default function StudentResultPage() {
         {!hasSubmission ? (
           <Card title="Chưa có kết quả">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-              <p className="text-sm text-zinc-600 dark:text-zinc-400">
+              <p className="text-sm text-zinc-600">
                 Không tìm thấy dữ liệu câu trả lời từ trang thi.
               </p>
               <ButtonLink href="/student/join">Vào làm bài</ButtonLink>
@@ -66,17 +66,17 @@ export default function StudentResultPage() {
           </Card>
         ) : null}
 
-        <div className="grid gap-4 sm:grid-cols-3">
+        <div className="bento-grid">
           <Card title="Điểm" description="Thang điểm 10">
-            <div className="text-3xl font-semibold text-zinc-900 dark:text-zinc-100">{result.score.toFixed(1)}</div>
+            <div className="text-3xl font-black text-zinc-900">{result.score.toFixed(1)}</div>
           </Card>
           <Card title="Đúng" description="Số câu trả lời đúng">
-            <div className="text-3xl font-semibold text-zinc-900 dark:text-zinc-100">
+            <div className="text-3xl font-black text-zinc-900">
               {result.correctCount}/{result.totalQuestions}
             </div>
           </Card>
           <Card title="Đã trả lời" description="Số câu đã chọn đáp án">
-            <div className="text-3xl font-semibold text-zinc-900 dark:text-zinc-100">
+            <div className="text-3xl font-black text-zinc-900">
               {result.answeredCount}/{result.totalQuestions}
             </div>
           </Card>
@@ -92,16 +92,16 @@ export default function StudentResultPage() {
               return (
                 <div
                   key={question.id}
-                  className="rounded-2xl border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-950"
+                  className="rounded-2xl border-2 border-[color:var(--border)] bg-white p-4 shadow-[4px_4px_0_#1a1a1a]"
                 >
                   <div className="mb-3 flex items-start justify-between gap-3">
                     <div className="min-w-0">
-                      <div className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">
+                      <div className="text-sm font-bold text-zinc-900">
                         Câu {index + 1}: {question.content}
                       </div>
-                      <div className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
-                        Bạn chọn: <span className="font-medium">{selected ?? "Chưa trả lời"}</span> • Đáp án đúng:{" "}
-                        <span className="font-medium">{question.answer}</span>
+                      <div className="mt-1 text-sm text-zinc-600">
+                        Bạn chọn: <span className="font-bold">{selected ?? "Chưa trả lời"}</span> • Đáp án đúng:{" "}
+                        <span className="font-bold">{question.answer}</span>
                       </div>
                     </div>
                     <Badge variant={selected ? (isCorrect ? "success" : "danger") : "warning"}>
@@ -118,17 +118,17 @@ export default function StudentResultPage() {
                         <div
                           key={option}
                           className={[
-                            "rounded-xl border px-3 py-2 text-sm",
+                            "rounded-xl border-2 px-3 py-2 text-sm",
                             isAnswer
-                              ? "border-emerald-300 bg-emerald-50 text-emerald-800 dark:border-emerald-900/70 dark:bg-emerald-950/40 dark:text-emerald-200"
+                              ? "border-emerald-600 bg-[#D4F5E9] text-emerald-800 font-semibold shadow-[2px_2px_0_#065F46]"
                               : isSelected
-                                ? "border-red-300 bg-red-50 text-red-800 dark:border-red-900/70 dark:bg-red-950/40 dark:text-red-200"
-                                : "border-zinc-200 bg-white text-zinc-700 dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-300",
+                                ? "border-red-500 bg-[#FFD6DD] text-red-800 font-semibold shadow-[2px_2px_0_#991B1B]"
+                                : "border-[color:var(--border)] bg-white text-zinc-700 shadow-[2px_2px_0_#1a1a1a]",
                           ]
                             .filter(Boolean)
                             .join(" ")}
                         >
-                          <span className="font-medium">{option}.</span> {content}
+                          <span className="font-bold">{option}.</span> {content}
                           {isAnswer ? " • Đáp án đúng" : ""}
                           {!isAnswer && isSelected ? " • Bạn đã chọn" : ""}
                         </div>
@@ -145,3 +145,10 @@ export default function StudentResultPage() {
   );
 }
 
+export default function StudentResultPage() {
+  return (
+    <Suspense>
+      <StudentResultContent />
+    </Suspense>
+  );
+}

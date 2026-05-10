@@ -15,11 +15,11 @@ export default function TeacherDashboardPage() {
         { href: "/teacher/results", label: "Kết quả & Vi phạm" },
       ]}
     >
-      <div className="grid gap-4">
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+      <div className="page-stack">
+        <div className="section-head flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h1 className="text-xl font-semibold text-zinc-900 dark:text-zinc-100">Tổng quan</h1>
-            <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
+            <h1 className="text-2xl font-black text-zinc-900">Tổng quan</h1>
+            <p className="mt-1 text-sm text-zinc-600">
               Skeleton UI để team backend gắn API dần theo Sprint 2–3.
             </p>
           </div>
@@ -31,22 +31,22 @@ export default function TeacherDashboardPage() {
           </div>
         </div>
 
-        <div className="grid gap-4 sm:grid-cols-3">
-          <Card title="Đề thi" description="Số lượng đề đã tạo">
+        <div className="bento-grid">
+          <Card title="Đề thi" description="Số lượng đề đã tạo" shadow="green">
             <div className="flex items-end justify-between">
-              <div className="text-3xl font-semibold text-zinc-900 dark:text-zinc-100">—</div>
+              <div className="text-3xl font-black text-zinc-900">—</div>
               <Badge>placeholder</Badge>
             </div>
           </Card>
-          <Card title="Lượt thi" description="Tổng số attempt">
+          <Card title="Lượt thi" description="Tổng số attempt" shadow="orange">
             <div className="flex items-end justify-between">
-              <div className="text-3xl font-semibold text-zinc-900 dark:text-zinc-100">—</div>
+              <div className="text-3xl font-black text-zinc-900">—</div>
               <Badge variant="success">realtime</Badge>
             </div>
           </Card>
-          <Card title="Vi phạm" description="Tổng số vi phạm">
+          <Card title="Vi phạm" description="Tổng số vi phạm" shadow="red">
             <div className="flex items-end justify-between">
-              <div className="text-3xl font-semibold text-zinc-900 dark:text-zinc-100">—</div>
+              <div className="text-3xl font-black text-zinc-900">—</div>
               <Badge variant="warning">anti-cheat</Badge>
             </div>
           </Card>
@@ -56,16 +56,16 @@ export default function TeacherDashboardPage() {
           title="Việc cần làm"
           description="Những màn hình chính cần cho demo"
           right={<Badge variant="warning">UI only</Badge>}
+          shadow="dark"
         >
-          <ul className="grid gap-2 text-sm text-zinc-600 dark:text-zinc-400">
-            <li>- Tạo đề: Excel / Manual / AI + preview</li>
-            <li>- Cấu hình thời gian start/end/duration</li>
-            <li>- Sinh mã code phòng thi 6–8 ký tự</li>
-            <li>- Trang kết quả + thống kê vi phạm theo attempt</li>
+          <ul className="grid gap-2 text-sm text-zinc-600">
+            <li className="flex items-center gap-2"><span className="inline-block h-2.5 w-2.5 rounded-full border-2 border-[color:var(--border)] bg-[color:var(--primary-surface)]"></span> Tạo đề: Excel / Manual / AI + preview</li>
+            <li className="flex items-center gap-2"><span className="inline-block h-2.5 w-2.5 rounded-full border-2 border-[color:var(--border)] bg-[color:var(--accent-surface)]"></span> Cấu hình thời gian start/end/duration</li>
+            <li className="flex items-center gap-2"><span className="inline-block h-2.5 w-2.5 rounded-full border-2 border-[color:var(--border)] bg-[color:var(--danger-surface)]"></span> Sinh mã code phòng thi 6–8 ký tự</li>
+            <li className="flex items-center gap-2"><span className="inline-block h-2.5 w-2.5 rounded-full border-2 border-[color:var(--border)] bg-white"></span> Trang kết quả + thống kê vi phạm theo attempt</li>
           </ul>
         </Card>
       </div>
     </AppShell>
   );
 }
-

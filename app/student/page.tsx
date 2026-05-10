@@ -15,12 +15,12 @@ export default function StudentDashboardPage() {
         { href: "/student/history", label: "Lịch sử bài thi" },
       ]}
     >
-      <div className="grid gap-4">
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+      <div className="page-stack">
+        <div className="section-head flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h1 className="text-xl font-semibold text-zinc-900 dark:text-zinc-100">Tổng quan</h1>
-            <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
-              Grid bài thi đã làm/sắp làm + truy cập nhanh “Join by code”.
+            <h1 className="text-2xl font-black text-zinc-900">Tổng quan</h1>
+            <p className="mt-1 text-sm text-zinc-600">
+              Grid bài thi đã làm/sắp làm + truy cập nhanh "Join by code".
             </p>
           </div>
           <ButtonLink href="/student/join">Vào phòng thi</ButtonLink>
@@ -39,24 +39,24 @@ export default function StudentDashboardPage() {
           </div>
         </Card>
 
-        <Card title="Bài thi của bạn" description="Hiển thị dạng grid ô vuông (placeholder)">
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        <Card title="Bài thi của bạn" description="Hiển thị dạng bento cards (placeholder)">
+          <div className="bento-grid">
             {Array.from({ length: 6 }).map((_, i) => (
               <div
                 key={i}
-                className="rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm dark:border-zinc-800 dark:bg-zinc-950"
+                className="rounded-2xl border-2 border-[color:var(--border)] bg-white p-4 shadow-[4px_4px_0_#1a1a1a] transition hover:shadow-[6px_6px_0_#1a1a1a]"
               >
                 <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0">
-                    <div className="truncate text-sm font-semibold text-zinc-900 dark:text-zinc-100">
+                    <div className="truncate text-sm font-bold text-zinc-900">
                       Bài thi #{i + 1}
                     </div>
-                    <div className="mt-0.5 text-xs text-zinc-500 dark:text-zinc-400">—/—/— • — phút</div>
+                    <div className="mt-0.5 text-xs text-zinc-500">—/—/— • — phút</div>
                   </div>
                   <Badge>—</Badge>
                 </div>
-                <div className="mt-3 text-sm text-zinc-600 dark:text-zinc-400">
-                  Trạng thái: <span className="font-medium">placeholder</span>
+                <div className="mt-3 text-sm text-zinc-600">
+                  Trạng thái: <span className="font-bold">placeholder</span>
                 </div>
                 <div className="mt-4 flex gap-2">
                   <ButtonLink href="/student/join" variant="secondary" className="flex-1 justify-center">
@@ -74,4 +74,3 @@ export default function StudentDashboardPage() {
     </AppShell>
   );
 }
-

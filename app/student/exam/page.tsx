@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { Suspense, useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { AppShell } from "@/components/layout/app-shell";
 import { Badge } from "@/components/ui/badge";
@@ -20,7 +20,7 @@ function formatTime(totalSeconds: number): string {
   return `${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
 }
 
-export default function StudentExamRunnerPage() {
+function StudentExamRunnerContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const toast = useToast();
@@ -166,12 +166,12 @@ export default function StudentExamRunnerPage() {
         { href: "/student/history", label: "Lịch sử bài thi" },
       ]}
     >
-      <div className="grid gap-4">
-        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+      <div className="page-stack">
+        <div className="section-head flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h1 className="text-xl font-semibold text-zinc-900 dark:text-zinc-100">{mockExam.title}</h1>
-            <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
-              Mã phòng thi: <span className="font-medium">{examCode}</span> • {TOTAL_QUESTIONS} câu hỏi
+            <h1 className="text-2xl font-black text-zinc-900">{mockExam.title}</h1>
+            <p className="mt-1 text-sm text-zinc-600">
+              Mã phòng thi: <span className="font-bold">{examCode}</span> • {TOTAL_QUESTIONS} câu hỏi
             </p>
           </div>
           <div className="flex items-center gap-2">
@@ -185,19 +185,19 @@ export default function StudentExamRunnerPage() {
         </div>
 
         {!hasProvidedCode ? (
-          <div className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900 dark:border-amber-900/50 dark:bg-amber-950/40 dark:text-amber-200">
-            Bạn vào trang thi mà chưa có mã từ trang Join. Hệ thống đang dùng mã demo <span className="font-medium">DEMO01</span>.
+          <div className="rounded-2xl border-2 border-amber-500 bg-[#FFF3CD] px-4 py-3 text-sm font-semibold text-amber-900 shadow-[3px_3px_0_#1a1a1a]">
+            Bạn vào trang thi mà chưa có mã từ trang Join. Hệ thống đang dùng mã demo <span className="font-bold">DEMO01</span>.
           </div>
         ) : null}
 
         {warningMessage ? (
-          <div className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-medium text-amber-950 dark:border-amber-900/60 dark:bg-amber-950/40 dark:text-amber-200">
+          <div className="rounded-2xl border-2 border-amber-500 bg-[#FFF3CD] px-4 py-3 text-sm font-bold text-amber-950 shadow-[3px_3px_0_#1a1a1a]">
             {warningMessage}
           </div>
         ) : null}
 
         {isTimeUp ? (
-          <div className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-800 dark:border-red-900/60 dark:bg-red-950/40 dark:text-red-200">
+          <div className="rounded-2xl border-2 border-red-500 bg-[#FFD6DD] px-4 py-3 text-sm font-bold text-red-800 shadow-[3px_3px_0_#1a1a1a]">
             Đã hết thời gian làm bài. Bạn không thể đổi đáp án nữa, vui lòng nộp bài.
           </div>
         ) : null}
@@ -209,7 +209,7 @@ export default function StudentExamRunnerPage() {
             right={<Badge variant={currentAnswer ? "success" : "warning"}>{currentAnswer ? "Đã trả lời" : "Chưa trả lời"}</Badge>}
           >
             <div className="grid gap-4">
-              <div className="text-sm font-medium text-zinc-900 dark:text-zinc-100">{currentQuestion.content}</div>
+              <div className="text-sm font-bold text-zinc-900">{currentQuestion.content}</div>
 
               <div className="grid gap-2">
                 {optionEntries.map(([option, content]) => {
@@ -219,12 +219,11 @@ export default function StudentExamRunnerPage() {
                     <label
                       key={option}
                       className={[
-                        "flex items-center gap-3 rounded-xl border bg-white px-4 py-3 text-sm shadow-sm transition",
-                        "dark:bg-zinc-950",
+                        "flex items-center gap-3 rounded-xl border-2 border-[color:var(--border)] px-4 py-3 text-sm transition-all",
                         isTimeUp ? "cursor-not-allowed opacity-85" : "cursor-pointer",
                         isSelected
-                          ? "border-zinc-900 dark:border-zinc-200"
-                          : "border-zinc-200 hover:bg-zinc-50 dark:border-zinc-800 dark:hover:bg-zinc-900",
+                          ? "bg-[color:var(--surface-mint)] shadow-[2px_2px_0_#1a1a1a]"
+                          : "bg-white shadow-[3px_3px_0_#1a1a1a] hover:shadow-[5px_5px_0_#1a1a1a]",
                       ]
                         .filter(Boolean)
                         .join(" ")}
@@ -236,10 +235,10 @@ export default function StudentExamRunnerPage() {
                         onChange={() => handleSelectOption(option)}
                         disabled={isTimeUp}
                       />
-                      <span className="grid h-7 w-7 place-items-center rounded-lg bg-zinc-100 font-medium text-zinc-900 dark:bg-zinc-900 dark:text-zinc-100">
+                      <span className="grid h-7 w-7 place-items-center rounded-lg border-2 border-[color:var(--border)] bg-[color:var(--surface-warm)] font-bold text-zinc-900 shadow-[2px_2px_0_#1a1a1a]">
                         {option}
                       </span>
-                      <span className="text-zinc-700 dark:text-zinc-300">{content}</span>
+                      <span className="text-zinc-700">{content}</span>
                     </label>
                   );
                 })}
@@ -283,12 +282,12 @@ export default function StudentExamRunnerPage() {
                       key={question.id}
                       type="button"
                       className={[
-                        "h-10 rounded-lg border text-sm font-medium transition",
+                        "h-10 rounded-lg border-2 border-[color:var(--border)] text-sm font-bold transition-all",
                         active
-                          ? "border-zinc-900 bg-zinc-900 text-white dark:border-zinc-100 dark:bg-zinc-100 dark:text-zinc-900"
+                          ? "bg-[color:var(--primary)] text-white shadow-[2px_2px_0_#1a1a1a]"
                           : answered
-                            ? "border-emerald-300 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 dark:border-emerald-900/70 dark:bg-emerald-950/40 dark:text-emerald-200 dark:hover:bg-emerald-950/70"
-                            : "border-zinc-200 bg-white text-zinc-700 hover:bg-zinc-100 dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-200 dark:hover:bg-zinc-900",
+                            ? "bg-[color:var(--surface-mint)] text-emerald-700 shadow-[3px_3px_0_#1a1a1a]"
+                            : "bg-white text-zinc-700 shadow-[3px_3px_0_#1a1a1a] hover:shadow-[5px_5px_0_#1a1a1a]",
                       ]
                         .filter(Boolean)
                         .join(" ")}
@@ -300,14 +299,14 @@ export default function StudentExamRunnerPage() {
                 })}
               </div>
 
-              <div className="rounded-xl border border-zinc-200 bg-zinc-50 p-3 text-xs text-zinc-600 dark:border-zinc-800 dark:bg-zinc-900/40 dark:text-zinc-400">
-                Câu hiện tại: <span className="font-medium">{currentQuestionIndex + 1}</span> • Trạng thái:{" "}
-                <span className="font-medium">{currentAnswer ? "Đã trả lời" : "Chưa trả lời"}</span>
+              <div className="rounded-xl border-2 border-[color:var(--border)] bg-[color:var(--surface-warm)] p-3 text-xs font-semibold text-zinc-600 shadow-[2px_2px_0_#1a1a1a]">
+                Câu hiện tại: <span className="font-bold">{currentQuestionIndex + 1}</span> • Trạng thái:{" "}
+                <span className="font-bold">{currentAnswer ? "Đã trả lời" : "Chưa trả lời"}</span>
               </div>
 
               <div className="grid gap-2">
-                <div className="text-xs font-medium text-zinc-700 dark:text-zinc-300">Anti-cheat panel</div>
-                <div className="grid gap-2 text-sm text-zinc-700 dark:text-zinc-300">
+                <div className="text-xs font-bold text-zinc-700">Anti-cheat panel</div>
+                <div className="grid gap-2 text-sm text-zinc-700">
                   <div className="flex items-center justify-between">
                     <span>Tab switch</span>
                     <Badge variant={violationCounts.tab_switch ? "warning" : "default"}>{violationCounts.tab_switch}</Badge>
@@ -385,3 +384,10 @@ export default function StudentExamRunnerPage() {
   );
 }
 
+export default function StudentExamRunnerPage() {
+  return (
+    <Suspense>
+      <StudentExamRunnerContent />
+    </Suspense>
+  );
+}

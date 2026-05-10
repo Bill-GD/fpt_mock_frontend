@@ -4,19 +4,19 @@ import { Input } from "@/components/ui/input";
 
 export default function LoginPage() {
   return (
-    <div className="flex flex-1 items-center justify-center bg-zinc-50 py-12 dark:bg-black">
-      <div className="container-app max-w-md">
+    <div className="flex flex-1 items-center justify-center bg-[color:var(--surface-cream)] py-12">
+      <div className="container-app w-full max-w-sm">
         <div className="mb-6 text-center">
-          <div className="mx-auto grid h-11 w-11 place-items-center rounded-2xl bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-950">
-            SQ
+          <div className="mx-auto inline-block rounded-full border-2 border-[color:var(--border)] bg-[color:var(--primary)] px-5 py-2 text-sm font-bold text-white shadow-[3px_3px_0_#1a1a1a]">
+            SmartQuiz
           </div>
-          <h1 className="mt-4 text-2xl font-semibold text-zinc-900 dark:text-zinc-100">Đăng nhập</h1>
-          <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
+          <h1 className="mt-5 text-3xl font-black text-zinc-900">Đăng nhập</h1>
+          <p className="mt-1 text-sm text-zinc-600">
             Chọn role sau khi đăng nhập để vào dashboard phù hợp.
           </p>
         </div>
 
-        <Card>
+        <Card shadow="green">
           <form className="grid gap-4">
             <Input label="Email" type="email" placeholder="you@example.com" autoComplete="email" required />
             <Input label="Mật khẩu" type="password" placeholder="••••••••" autoComplete="current-password" required />
@@ -28,7 +28,7 @@ export default function LoginPage() {
               </ButtonLink>
             </div>
 
-            <div className="text-center text-sm text-zinc-600 dark:text-zinc-400">
+            <div className="text-center text-sm text-zinc-600">
               Chưa có tài khoản?{" "}
               <ButtonLink href="/register" variant="ghost" className="inline-flex h-auto px-1 py-0">
                 Đăng ký
@@ -37,11 +37,10 @@ export default function LoginPage() {
           </form>
         </Card>
 
-        <div className="mt-4 text-center text-xs text-zinc-500 dark:text-zinc-400">
+        <div className="mt-4 text-center text-xs text-zinc-500">
           Placeholder UI: sẽ nối API `/auth/login` khi backend sẵn sàng.
         </div>
       </div>
     </div>
   );
 }
-

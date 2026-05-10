@@ -3,10 +3,10 @@ import * as React from "react";
 type Variant = "default" | "success" | "warning" | "danger";
 
 const variantClass: Record<Variant, string> = {
-  default: "bg-zinc-100 text-zinc-800 dark:bg-zinc-900 dark:text-zinc-200",
-  success: "bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-200",
-  warning: "bg-amber-100 text-amber-900 dark:bg-amber-950/60 dark:text-amber-200",
-  danger: "bg-red-100 text-red-800 dark:bg-red-950/60 dark:text-red-200",
+  default: "border-2 border-[color:var(--border)] bg-white text-zinc-700 shadow-[2px_2px_0_#1a1a1a]",
+  success: "border-2 border-[color:var(--border)] bg-[color:var(--primary-surface)] text-emerald-800 shadow-[2px_2px_0_#166534]",
+  warning: "border-2 border-[color:var(--border)] bg-[color:var(--accent-surface)] text-amber-900 shadow-[2px_2px_0_#D4860A]",
+  danger: "border-2 border-[color:var(--border)] bg-[color:var(--danger-surface)] text-red-800 shadow-[2px_2px_0_#DC2626]",
 };
 
 export type BadgeProps = React.HTMLAttributes<HTMLSpanElement> & {
@@ -17,7 +17,7 @@ export function Badge({ className, variant = "default", ...props }: BadgeProps) 
   return (
     <span
       className={[
-        "inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium",
+        "inline-flex items-center rounded-full px-2.5 py-1 text-xs font-bold",
         variantClass[variant],
         className,
       ]
@@ -27,4 +27,3 @@ export function Badge({ className, variant = "default", ...props }: BadgeProps) 
     />
   );
 }
-

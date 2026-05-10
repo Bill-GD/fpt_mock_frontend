@@ -1,3 +1,5 @@
+"use client";
+
 import Link from "next/link";
 import * as React from "react";
 
@@ -6,6 +8,52 @@ export type NavItem = {
   label: string;
   badge?: string;
 };
+
+function SidebarContent({
+  title,
+  subtitle,
+  nav,
+  onNavClick,
+}: {
+  title: string;
+  subtitle?: string;
+  nav: NavItem[];
+  onNavClick?: () => void;
+}) {
+  return (
+    <>
+      <div className="flex h-16 items-center gap-3 border-b-2 border-[color:var(--border)] px-5">
+        <div className="grid h-9 w-9 place-items-center rounded-full border-2 border-white bg-[color:var(--primary)] text-white font-bold text-sm shadow-[2px_2px_0_#1a1a1a]">
+          SQ
+        </div>
+        <div className="min-w-0 leading-tight">
+          <div className="truncate text-sm font-bold text-white">{title}</div>
+          {subtitle ? <div className="truncate text-xs text-white/60">{subtitle}</div> : null}
+        </div>
+      </div>
+      <nav className="flex-1 overflow-y-auto px-3 py-4">
+        <ul className="grid gap-1">
+          {nav.map((item) => (
+            <li key={item.href}>
+              <Link
+                href={item.href}
+                onClick={onNavClick}
+                className="flex items-center justify-between rounded-full px-4 py-2.5 text-sm font-semibold text-white/80 transition-all hover:bg-white/10 hover:text-white"
+              >
+                <span>{item.label}</span>
+                {item.badge ? (
+                  <span className="rounded-full border-2 border-white/30 bg-white/10 px-2 py-0.5 text-xs font-bold text-white/90">
+                    {item.badge}
+                  </span>
+                ) : null}
+              </Link>
+            </li>
+          ))}
+        </ul>
+      </nav>
+    </>
+  );
+}
 
 export function AppShell({
   title,
@@ -18,56 +66,78 @@ export function AppShell({
   nav: NavItem[];
   children: React.ReactNode;
 }) {
+  const [mobileOpen, setMobileOpen] = React.useState(false);
+
   return (
-    <div className="flex min-h-full flex-1 bg-zinc-50 dark:bg-black">
-      <aside className="hidden w-72 shrink-0 border-r border-zinc-100 bg-white dark:border-zinc-900 dark:bg-zinc-950 lg:block">
-        <div className="flex h-16 items-center gap-3 px-5">
-          <div className="grid h-9 w-9 place-items-center rounded-xl bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-950">
-            SQ
-          </div>
-          <div className="leading-tight">
-            <div className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">{title}</div>
-            {subtitle ? <div className="text-xs text-zinc-500 dark:text-zinc-400">{subtitle}</div> : null}
-          </div>
-        </div>
-        <nav className="px-3 py-4">
-          <ul className="grid gap-1">
-            {nav.map((item) => (
-              <li key={item.href}>
-                <Link
-                  href={item.href}
-                  className="flex items-center justify-between rounded-xl px-3 py-2 text-sm text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-900"
-                >
-                  <span>{item.label}</span>
-                  {item.badge ? (
-                    <span className="rounded-full bg-zinc-100 px-2 py-0.5 text-xs text-zinc-700 dark:bg-zinc-900 dark:text-zinc-300">
-                      {item.badge}
-                    </span>
-                  ) : null}
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </nav>
+    <div className="flex min-h-full flex-1">
+      {/* Desktop sidebar */}
+      <aside className="hidden w-72 shrink-0 border-r-2 border-[color:var(--border)] bg-[#3D2222] lg:flex lg:flex-col">
+        <SidebarContent title={title} subtitle={subtitle} nav={nav} />
       </aside>
 
+      {/* Mobile sidebar overlay */}
+      {mobileOpen ? (
+        <div className="fixed inset-0 z-40 lg:hidden">
+          {/* Backdrop */}
+          <div
+            className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+            onClick={() => setMobileOpen(false)}
+            aria-hidden
+          />
+          {/* Slide-over panel */}
+          <aside className="relative flex h-full w-72 max-w-[80vw] flex-col border-r-2 border-[color:var(--border)] bg-[#3D2222] shadow-[6px_0_0_#1a1a1a]">
+            {/* Close button */}
+            <button
+              type="button"
+              onClick={() => setMobileOpen(false)}
+              className="absolute right-3 top-4 grid h-8 w-8 place-items-center rounded-full border-2 border-white/30 text-white/80 transition hover:bg-white/10 hover:text-white"
+              aria-label="Đóng menu"
+            >
+              ✕
+            </button>
+            <SidebarContent
+              title={title}
+              subtitle={subtitle}
+              nav={nav}
+              onNavClick={() => setMobileOpen(false)}
+            />
+          </aside>
+        </div>
+      ) : null}
+
       <div className="flex min-w-0 flex-1 flex-col">
-        <header className="sticky top-0 z-10 border-b border-zinc-100 bg-white/70 backdrop-blur dark:border-zinc-900 dark:bg-zinc-950/60">
-          <div className="container-app flex h-16 items-center justify-between">
-            <div className="min-w-0">
-              <div className="truncate text-sm font-semibold text-zinc-900 dark:text-zinc-100">{title}</div>
-              {subtitle ? <div className="truncate text-xs text-zinc-500 dark:text-zinc-400">{subtitle}</div> : null}
+        {/* Header bar */}
+        <header className="sticky top-0 z-10 border-b-2 border-[color:var(--border)] bg-[#3D2222]">
+          <div className="container-app flex h-16 items-center justify-between gap-3">
+            {/* Hamburger – mobile only */}
+            <button
+              type="button"
+              onClick={() => setMobileOpen(true)}
+              className="grid h-10 w-10 shrink-0 place-items-center rounded-full border-2 border-white/30 text-white transition hover:bg-white/10 lg:hidden"
+              aria-label="Mở menu"
+            >
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+                <line x1="3" y1="5" x2="17" y2="5" />
+                <line x1="3" y1="10" x2="17" y2="10" />
+                <line x1="3" y1="15" x2="17" y2="15" />
+              </svg>
+            </button>
+
+            <div className="min-w-0 flex-1">
+              <div className="truncate text-sm font-bold text-white">{title}</div>
+              {subtitle ? <div className="truncate text-xs text-white/60">{subtitle}</div> : null}
             </div>
-            <div className="flex items-center gap-2">
+
+            <div className="flex shrink-0 items-center gap-2">
               <Link
                 href="/"
-                className="rounded-xl px-3 py-2 text-sm text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-900"
+                className="hidden rounded-full px-3 py-2 text-sm font-semibold text-white/80 hover:text-white hover:bg-white/10 transition sm:inline-flex"
               >
                 Trang chủ
               </Link>
               <Link
                 href="/login"
-                className="rounded-xl bg-zinc-900 px-3 py-2 text-sm font-medium text-white hover:bg-zinc-800 dark:bg-zinc-100 dark:text-zinc-950 dark:hover:bg-zinc-200"
+                className="rounded-full border-2 border-white/30 bg-[color:var(--primary)] px-4 py-2 text-sm font-bold text-white shadow-[3px_3px_0_#1a1a1a] hover:shadow-[5px_5px_0_#1a1a1a] transition-all"
               >
                 Đăng nhập
               </Link>
@@ -80,4 +150,3 @@ export function AppShell({
     </div>
   );
 }
-

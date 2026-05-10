@@ -23,13 +23,13 @@ const ToastContext = React.createContext<ToastContextValue | null>(null);
 function variantClass(variant: ToastVariant) {
   switch (variant) {
     case "success":
-      return "border-emerald-200 bg-emerald-50 text-emerald-900 dark:border-emerald-900/60 dark:bg-emerald-950/40 dark:text-emerald-200";
+      return "border-[color:var(--border)] bg-[color:var(--primary-surface)] text-emerald-900 shadow-[4px_4px_0_#166534]";
     case "warning":
-      return "border-amber-200 bg-amber-50 text-amber-950 dark:border-amber-900/60 dark:bg-amber-950/40 dark:text-amber-200";
+      return "border-[color:var(--border)] bg-[color:var(--accent-surface)] text-amber-950 shadow-[4px_4px_0_#D4860A]";
     case "danger":
-      return "border-red-200 bg-red-50 text-red-900 dark:border-red-900/60 dark:bg-red-950/40 dark:text-red-200";
+      return "border-[color:var(--border)] bg-[color:var(--danger-surface)] text-red-900 shadow-[4px_4px_0_#DC2626]";
     default:
-      return "border-zinc-200 bg-white text-zinc-900 dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-100";
+      return "border-[color:var(--border)] bg-white text-zinc-900 shadow-[4px_4px_0_#1a1a1a]";
   }
 }
 
@@ -59,12 +59,12 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
           <div
             key={item.id}
             className={[
-              "pointer-events-auto rounded-2xl border px-4 py-3 shadow-sm backdrop-blur",
+              "pointer-events-auto rounded-xl border-2 px-4 py-3",
               variantClass(item.variant ?? "default"),
             ].join(" ")}
             role="status"
           >
-            <div className="text-sm font-semibold">{item.title}</div>
+            <div className="text-sm font-bold">{item.title}</div>
             {item.message ? <div className="mt-0.5 text-sm opacity-90">{item.message}</div> : null}
           </div>
         ))}
@@ -80,4 +80,3 @@ export function useToast() {
   }
   return ctx;
 }
-

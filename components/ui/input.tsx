@@ -12,26 +12,20 @@ export function Input({ className, label, hint, error, id, ...props }: InputProp
 
   return (
     <label className="grid gap-1.5 text-sm">
-      {label ? <span className="font-medium text-zinc-900 dark:text-zinc-100">{label}</span> : null}
+      {label ? <span className="font-bold text-zinc-900">{label}</span> : null}
       <input
         id={inputId}
         className={[
-          "h-11 w-full rounded-xl border bg-white px-3 text-sm text-zinc-900 shadow-sm outline-none transition",
-          "border-zinc-200 placeholder:text-zinc-400 focus:border-zinc-300 focus:ring-2 focus:ring-zinc-900/10",
-          "dark:bg-zinc-950 dark:text-zinc-100 dark:border-zinc-800 dark:placeholder:text-zinc-600 dark:focus:ring-zinc-100/10",
-          error ? "border-red-300 focus:border-red-400 focus:ring-red-500/10 dark:border-red-900/60" : "",
+          "h-11 w-full rounded-xl border-2 border-[color:var(--border)] bg-white px-3 text-sm text-zinc-900 shadow-[3px_3px_0_#1a1a1a] outline-none transition-all",
+          "placeholder:text-zinc-400 focus:shadow-[1px_1px_0_#1a1a1a] focus:ring-2 focus:ring-[color:var(--primary)]/20",
+          error ? "border-red-500 bg-red-50" : "",
           className,
         ]
           .filter(Boolean)
           .join(" ")}
         {...props}
       />
-      {error ? (
-        <span className="text-xs text-red-600 dark:text-red-400">{error}</span>
-      ) : hint ? (
-        <span className="text-xs text-zinc-500 dark:text-zinc-400">{hint}</span>
-      ) : null}
+      {error ? <span className="text-xs font-semibold text-red-600">{error}</span> : hint ? <span className="text-xs text-zinc-500">{hint}</span> : null}
     </label>
   );
 }
-

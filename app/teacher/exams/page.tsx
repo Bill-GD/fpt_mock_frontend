@@ -55,12 +55,12 @@ export default function TeacherExamsPage() {
         { href: "/teacher/results", label: "Kết quả & Vi phạm" },
       ]}
     >
-      <div className="grid gap-4">
+      <div className="grid gap-5">
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h1 className="text-xl font-semibold text-zinc-900 dark:text-zinc-100">Danh sách đề thi</h1>
-            <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
-              Demo data lấy từ localStorage khi teacher bấm “Lưu đề”.
+            <h1 className="text-2xl font-black text-zinc-900">Danh sách đề thi</h1>
+            <p className="mt-1 text-sm text-zinc-600">
+              Demo data lấy từ localStorage khi teacher bấm "Lưu đề".
             </p>
           </div>
           <ButtonLink href="/teacher/exams/new">Tạo đề mới</ButtonLink>
@@ -82,7 +82,7 @@ export default function TeacherExamsPage() {
                   right={<Badge variant="success">CODE: {exam.code}</Badge>}
                 >
                   <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                    <div className="text-sm text-zinc-600 dark:text-zinc-400">
+                    <div className="text-sm text-zinc-600">
                       {exam.questionCount} câu hỏi • {stats.attempts} attempt • {stats.violations} vi phạm
                     </div>
                     <div className="flex gap-2">
@@ -103,4 +103,3 @@ export default function TeacherExamsPage() {
     </AppShell>
   );
 }
-

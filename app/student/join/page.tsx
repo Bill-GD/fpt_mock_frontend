@@ -37,16 +37,16 @@ export default function StudentJoinPage() {
         { href: "/student/history", label: "Lịch sử bài thi" },
       ]}
     >
-      <div className="grid gap-4">
+      <div className="grid gap-5">
         <div>
-          <h1 className="text-xl font-semibold text-zinc-900 dark:text-zinc-100">Vào phòng thi</h1>
-          <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
+          <h1 className="text-2xl font-black text-zinc-900">Vào phòng thi</h1>
+          <p className="mt-1 text-sm text-zinc-600">
             Nhập mã phòng thi để bắt đầu bài test demo ngay trên UI.
           </p>
         </div>
 
         <Card title="Nhập mã code" right={<Badge variant="success">Sprint 2</Badge>}>
-          <form className="grid gap-3 sm:grid-cols-[1fr_auto] sm:items-end" onSubmit={handleSubmit}>
+          <form className="grid gap-3 sm:grid-cols-[1fr_auto] sm:items-start" onSubmit={handleSubmit}>
             <Input
               label="Mã phòng thi"
               placeholder="VD: A1B2C3"
@@ -60,21 +60,20 @@ export default function StudentJoinPage() {
               error={error}
               hint={!error ? "Dùng 4-10 ký tự chữ hoặc số." : undefined}
             />
-            <Button type="submit" className="w-full sm:w-auto">
+            <Button type="submit" className="w-full sm:w-auto mt-7 sm:mt-6">
               Vào thi
             </Button>
           </form>
         </Card>
 
         <Card title="Lưu ý anti-cheat" description="Hệ thống sẽ ghi nhận vi phạm trong khi thi">
-          <ul className="grid gap-2 text-sm text-zinc-600 dark:text-zinc-400">
-            <li>- Không chuyển tab (tab-switch detection)</li>
-            <li>- Không dùng Ctrl+C / Ctrl+V (keyboard logger)</li>
-            <li>- Bật camera khi được yêu cầu (fallback nếu từ chối)</li>
+          <ul className="grid gap-2 text-sm text-zinc-600">
+            <li className="flex items-center gap-2"><span className="inline-block h-2 w-2 rounded-full border-2 border-[color:var(--border)] bg-[#FFD6DD]"></span> Không chuyển tab (tab-switch detection)</li>
+            <li className="flex items-center gap-2"><span className="inline-block h-2 w-2 rounded-full border-2 border-[color:var(--border)] bg-[#FFD6DD]"></span> Không dùng Ctrl+C / Ctrl+V (keyboard logger)</li>
+            <li className="flex items-center gap-2"><span className="inline-block h-2 w-2 rounded-full border-2 border-[color:var(--border)] bg-[#FFD6DD]"></span> Bật camera khi được yêu cầu (fallback nếu từ chối)</li>
           </ul>
         </Card>
       </div>
     </AppShell>
   );
 }
-

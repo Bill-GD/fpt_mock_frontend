@@ -8,7 +8,7 @@ import { Button, ButtonLink } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { useToast } from "@/components/ui/toast";
 import { mockExam, normalizeExamCode, serializeAnswers, type OptionId } from "../mock-exam";
-import { addAttempt, addViolations, randomId, type DemoViolation, type ViolationType } from "@/lib/demo-store";
+import { addAttempt, addViolations, randomId, updateStudentProgress, type DemoViolation, type ViolationType } from "@/lib/demo-store";
 import { calculateExamResult } from "../mock-exam";
 
 const TOTAL_QUESTIONS = mockExam.questions.length;
@@ -101,6 +101,33 @@ function StudentExamRunnerContent() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // Anti-cheat: block copy/paste
+  useEffect(() => {
+    const onKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === "c") {
+        e.preventDefault();
+        pushViolation("keyboard_copy", "Hành vi copy (Ctrl+C) đã bị chặn và ghi nhận.");
+      }
+      if ((e.ctrlKey || e.metaKey) && e.key === "v") {
+        e.preventDefault();
+        pushViolation("keyboard_paste", "Hành vi paste (Ctrl+V) đã bị chặn và ghi nhận.");
+      }
+    };
+    document.addEventListener("keydown", onKeyDown);
+    return () => document.removeEventListener("keydown", onKeyDown);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Anti-cheat: block right-click
+  useEffect(() => {
+    const onContextMenu = (e: MouseEvent) => {
+      e.preventDefault();
+    };
+    document.addEventListener("contextmenu", onContextMenu);
+    return () => document.removeEventListener("contextmenu", onContextMenu);
+  }, []);
+
+
   const currentQuestion = mockExam.questions[currentQuestionIndex];
   const currentAnswer = answers[currentQuestionIndex];
   const answeredCount = answers.filter(Boolean).length;
@@ -120,6 +147,26 @@ function StudentExamRunnerContent() {
       return next;
     });
   };
+
+  // Broadcast live progress to localStorage (teacher room view polls this)
+  useEffect(() => {
+    const correctSoFar = answers.reduce((count, ans, idx) => {
+      if (ans && ans === mockExam.questions[idx].answer) return count + 1;
+      return count;
+    }, 0);
+    const totalViolationCount = Object.values(violationCounts).reduce((a, b) => a + b, 0);
+
+    updateStudentProgress({
+      studentEmail: "student.demo@example.com",
+      roomPin: examCode,
+      currentQuestion: currentQuestionIndex + 1,
+      totalQuestions: TOTAL_QUESTIONS,
+      answeredCount,
+      correctCount: correctSoFar,
+      violationCount: totalViolationCount,
+      updatedAt: new Date().toISOString(),
+    });
+  }, [answers, currentQuestionIndex, answeredCount, violationCounts, examCode]);
 
   const handleSubmit = () => {
     const attemptId = randomId("att");

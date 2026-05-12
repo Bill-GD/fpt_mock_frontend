@@ -8,7 +8,7 @@ import { Button, ButtonLink } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/toast";
-import { generateExamCode, randomId, setExamQuestions, upsertExam, type DemoQuestion } from "@/lib/demo-store";
+import { randomId, setExamQuestions, upsertExam, type DemoQuestion } from "@/lib/demo-store";
 
 type TabKey = "excel" | "manual" | "ai";
 type OptionId = "A" | "B" | "C" | "D";
@@ -321,32 +321,29 @@ export default function TeacherCreateExamPage() {
     }
 
     const examId = randomId("exam");
-    const examCode = generateExamCode(6);
     const now = new Date().toISOString();
 
     const normalizedQuestions = toDemoQuestions(questions);
 
     upsertExam({
       id: examId,
-      code: examCode,
       title: title.trim(),
       description: description.trim() || undefined,
-      startTime: startTime || undefined,
-      endTime: endTime || undefined,
       durationMinutes: duration,
       questionCount: normalizedQuestions.length,
       createdAt: now,
+      updatedAt: now,
     });
 
     setExamQuestions(examId, normalizedQuestions);
 
     toast.push({
       title: "Lưu đề thi thành công",
-      message: `Code phòng thi: ${examCode}`,
+      message: `Đề thi "${title.trim()}" đã được tạo.`,
       variant: "success",
     });
 
-    router.push("/teacher/exams");
+    router.push(`/teacher/exams/${examId}`);
   };
 
   return (

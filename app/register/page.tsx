@@ -20,6 +20,7 @@ export default function RegisterPage() {
         <Card shadow="orange">
           <form className="grid gap-4">
             <Input label="Email" type="email" placeholder="you@example.com" autoComplete="email" required />
+            <Input label="Username" type="text" placeholder="johndoe" autoComplete="username" required />
             <Input label="Mật khẩu" type="password" placeholder="••••••••" autoComplete="new-password" required />
             <Input
               label="Nhập lại mật khẩu"

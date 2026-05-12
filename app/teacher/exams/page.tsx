@@ -3,9 +3,11 @@
 import { useEffect, useMemo, useState } from "react";
 import { AppShell } from "@/components/layout/app-shell";
 import { Badge } from "@/components/ui/badge";
-import { ButtonLink } from "@/components/ui/button";
+import { Button, ButtonLink } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { listAttempts, listExams, type DemoExam } from "@/lib/demo-store";
+import { EmptyState } from "@/components/ui/empty-state";
+import { useToast } from "@/components/ui/toast";
+import { listExams, listRooms, listAttempts, type DemoExam, type DemoRoom } from "@/lib/demo-store";
 
 function formatDateTime(value?: string): string {
   if (!value) return "—";
@@ -15,12 +17,15 @@ function formatDateTime(value?: string): string {
 }
 
 export default function TeacherExamsPage() {
+  const toast = useToast();
   const [exams, setExams] = useState<DemoExam[]>([]);
+  const [rooms, setRooms] = useState<DemoRoom[]>([]);
   const [attempts, setAttempts] = useState<ReturnType<typeof listAttempts>>([]);
 
   useEffect(() => {
     const load = () => {
       setExams(listExams());
+      setRooms(listRooms());
       setAttempts(listAttempts());
     };
 
@@ -33,16 +38,22 @@ export default function TeacherExamsPage() {
     };
   }, []);
 
-  const statsByCode = useMemo(() => {
-    const map = new Map<string, { attempts: number; violations: number }>();
-    for (const a of attempts) {
-      const current = map.get(a.examCode) ?? { attempts: 0, violations: 0 };
-      current.attempts += 1;
-      current.violations += a.violationCount;
-      map.set(a.examCode, current);
+  const examStats = useMemo(() => {
+    const map = new Map<string, { activeRoom?: DemoRoom; roomCount: number; attemptCount: number; violations: number }>();
+    for (const exam of exams) {
+      const examRooms = rooms.filter((r) => r.examId === exam.id);
+      const activeRoom = examRooms.find((r) => r.status === "waiting" || r.status === "in_progress");
+      const codes = new Set(examRooms.map((r) => r.pin));
+      const examAttempts = attempts.filter((a) => a.roomPin && codes.has(a.roomPin));
+      map.set(exam.id, {
+        activeRoom,
+        roomCount: examRooms.length,
+        attemptCount: examAttempts.length,
+        violations: examAttempts.reduce((s, a) => s + a.violationCount, 0),
+      });
     }
     return map;
-  }, [attempts]);
+  }, [exams, rooms, attempts]);
 
   return (
     <AppShell
@@ -60,7 +71,7 @@ export default function TeacherExamsPage() {
           <div>
             <h1 className="text-2xl font-black text-zinc-900">Danh sách đề thi</h1>
             <p className="mt-1 text-sm text-zinc-600">
-              Demo data lấy từ localStorage khi teacher bấm "Lưu đề".
+              {exams.length} đề thi • {rooms.length} phòng
             </p>
           </div>
           <ButtonLink href="/teacher/exams/new">Tạo đề mới</ButtonLink>
@@ -68,30 +79,56 @@ export default function TeacherExamsPage() {
 
         <div className="grid gap-3">
           {exams.length === 0 ? (
-            <Card title="Chưa có đề thi" description="Tạo đề đầu tiên để bắt đầu demo">
-              <ButtonLink href="/teacher/exams/new">Tạo đề mới</ButtonLink>
-            </Card>
+            <EmptyState
+              icon="📝"
+              title="Chưa có đề thi"
+              description="Tạo đề thi đầu tiên bằng Excel, nhập tay, hoặc AI."
+              action={{ href: "/teacher/exams/new", label: "Tạo đề mới" }}
+            />
           ) : (
             exams.map((exam) => {
-              const stats = statsByCode.get(exam.code) ?? { attempts: 0, violations: 0 };
+              const stats = examStats.get(exam.id) ?? { roomCount: 0, attemptCount: 0, violations: 0 };
               return (
                 <Card
                   key={exam.id}
                   title={exam.title}
-                  description={`Start ${formatDateTime(exam.startTime)} • End ${formatDateTime(exam.endTime)} • Duration ${exam.durationMinutes} phút`}
-                  right={<Badge variant="success">CODE: {exam.code}</Badge>}
+                  description={`${exam.durationMinutes} phút • ${exam.questionCount} câu hỏi`}
+                  right={
+                    stats.activeRoom ? (
+                      <Badge variant="success">PIN: {stats.activeRoom.pin}</Badge>
+                    ) : (
+                      <Badge>{stats.roomCount} phòng</Badge>
+                    )
+                  }
                 >
                   <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                    <div className="text-sm text-zinc-600">
-                      {exam.questionCount} câu hỏi • {stats.attempts} attempt • {stats.violations} vi phạm
+                    <div className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-zinc-600">
+                      <span>{stats.roomCount} phòng</span>
+                      <span>{stats.attemptCount} lượt thi</span>
+                      {stats.violations > 0 ? (
+                        <span className="text-red-600">{stats.violations} vi phạm</span>
+                      ) : null}
                     </div>
                     <div className="flex gap-2">
-                      <ButtonLink href="/teacher/exams/new" variant="secondary">
-                        Tạo bản mới
+                      {exam.shareToken ? (
+                        <Button
+                          variant="ghost"
+                          onClick={() => {
+                            navigator.clipboard.writeText(exam.shareToken!);
+                            toast.push({ title: "Đã copy share token!", variant: "success" });
+                          }}
+                        >
+                          Share
+                        </Button>
+                      ) : null}
+                      <ButtonLink href={`/teacher/exams/${exam.id}`} variant="secondary">
+                        Chi tiết
                       </ButtonLink>
-                      <ButtonLink href="/teacher/results" variant="ghost">
-                        Xem kết quả
-                      </ButtonLink>
+                      {stats.activeRoom ? (
+                        <ButtonLink href={`/teacher/rooms/${stats.activeRoom.pin}`}>
+                          Xem phòng
+                        </ButtonLink>
+                      ) : null}
                     </div>
                   </div>
                 </Card>

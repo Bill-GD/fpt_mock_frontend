@@ -6,7 +6,7 @@
   --foreground: #1a1a1a;
   --surface: #ffffff;
   --surface-cream: #FCEBD4;
-  --header-bg: #3D2222;
+  --header-bg: #064E3B;
   --border: #1a1a1a;
 
   /* Primary = green (buttons, accents) */
@@ -33,6 +33,7 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-header-bg: var(--header-bg);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }

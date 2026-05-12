@@ -71,7 +71,7 @@ export function AppShell({
   return (
     <div className="flex min-h-full flex-1">
       {/* Desktop sidebar */}
-      <aside className="hidden w-72 shrink-0 border-r-2 border-[color:var(--border)] bg-[#3D2222] lg:flex lg:flex-col">
+      <aside className="hidden w-72 shrink-0 border-r-2 border-[color:var(--border)] bg-header-bg lg:flex lg:flex-col">
         <SidebarContent title={title} subtitle={subtitle} nav={nav} />
       </aside>
 
@@ -85,7 +85,7 @@ export function AppShell({
             aria-hidden
           />
           {/* Slide-over panel */}
-          <aside className="relative flex h-full w-72 max-w-[80vw] flex-col border-r-2 border-[color:var(--border)] bg-[#3D2222] shadow-[6px_0_0_#1a1a1a]">
+          <aside className="relative flex h-full w-72 max-w-[80vw] flex-col border-r-2 border-[color:var(--border)] bg-header-bg shadow-[6px_0_0_#1a1a1a]">
             {/* Close button */}
             <button
               type="button"
@@ -107,7 +107,7 @@ export function AppShell({
 
       <div className="flex min-w-0 flex-1 flex-col">
         {/* Header bar */}
-        <header className="sticky top-0 z-10 border-b-2 border-[color:var(--border)] bg-[#3D2222]">
+        <header className="sticky top-0 z-10 border-b-2 border-[color:var(--border)] bg-header-bg">
           <div className="container-app flex h-16 items-center justify-between gap-3">
             {/* Hamburger – mobile only */}
             <button

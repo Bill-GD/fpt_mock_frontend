@@ -5,8 +5,8 @@ import { Card } from "@/components/ui/card";
 export default function Home() {
   return (
     <div className="flex flex-1 flex-col">
-      {/* ── HEADER — dark brown like FictionSaaS ── */}
-      <header className="border-b-2 border-[color:var(--border)] bg-[#3D2222]">
+      {/* ── HEADER — dark green, matching brand ── */}
+      <header className="border-b-2 border-[color:var(--border)] bg-header-bg">
         <div className="container-app flex h-16 items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="rounded-full border-2 border-white px-4 py-1.5 text-sm font-bold text-white">

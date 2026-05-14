@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 export default function RegisterPage() {
   return (
     <div className="flex flex-1 items-center justify-center bg-[color:var(--surface-cream)] py-12">
-      <div className="container-app max-w-sm">
+      <div className="mx-auto w-full max-w-lg px-4 sm:px-6">
         <div className="mb-6 text-center">
           <Badge className="mb-3" variant="success">
             Teacher / Student
@@ -18,7 +18,7 @@ export default function RegisterPage() {
         </div>
 
         <Card shadow="orange">
-          <form className="grid gap-4">
+          <form className="grid gap-3">
             <Input label="Email" type="email" placeholder="you@example.com" autoComplete="email" required />
             <Input label="Username" type="text" placeholder="johndoe" autoComplete="username" required />
             <Input label="Mật khẩu" type="password" placeholder="••••••••" autoComplete="new-password" required />

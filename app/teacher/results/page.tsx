@@ -5,7 +5,13 @@ import { AppShell } from "@/components/layout/app-shell";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { listAttempts, listViolations, type DemoAttempt, type DemoViolation, type ViolationType } from "@/lib/demo-store";
+import {
+  listAttempts,
+  listViolations,
+  type DemoAttempt,
+  type DemoViolation,
+  type ViolationType,
+} from "@/lib/demo-store";
 
 const VIOLATION_LABEL: Record<ViolationType, string> = {
   tab_switch: "Tab switch",
@@ -14,6 +20,15 @@ const VIOLATION_LABEL: Record<ViolationType, string> = {
   camera_multiple_faces: "Multiple faces",
   camera_gaze_away: "Gaze away",
   camera_missing: "Camera missing",
+};
+
+const VIOLATION_COLOR: Record<ViolationType, "warning" | "danger"> = {
+  tab_switch: "warning",
+  keyboard_copy: "warning",
+  keyboard_paste: "warning",
+  camera_multiple_faces: "danger",
+  camera_gaze_away: "warning",
+  camera_missing: "danger",
 };
 
 export default function TeacherResultsPage() {
@@ -30,12 +45,18 @@ export default function TeacherResultsPage() {
   }, [attempts]);
 
   const filteredAttempts = useMemo(() => {
-    return attempts.filter((a) => (selectedExamCode === "all" ? true : a.examCode === selectedExamCode));
+    return attempts.filter((a) =>
+      selectedExamCode === "all" ? true : a.examCode === selectedExamCode
+    );
   }, [attempts, selectedExamCode]);
 
   const filteredViolations = useMemo(() => {
-    const byAttempt = selectedAttemptId ? violations.filter((v) => v.attemptId === selectedAttemptId) : [];
-    return byAttempt.filter((v) => (selectedType === "all" ? true : v.type === selectedType));
+    const byAttempt = selectedAttemptId
+      ? violations.filter((v) => v.attemptId === selectedAttemptId)
+      : [];
+    return byAttempt.filter((v) =>
+      selectedType === "all" ? true : v.type === selectedType
+    );
   }, [violations, selectedAttemptId, selectedType]);
 
   const selectedAttempt: DemoAttempt | undefined = useMemo(() => {
@@ -55,16 +76,19 @@ export default function TeacherResultsPage() {
       ]}
     >
       <div className="page-stack">
+        {/* ── Page header ── */}
         <div className="section-head flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h1 className="text-2xl font-black text-zinc-900">Kết quả & Vi phạm</h1>
             <p className="mt-1 text-sm text-zinc-600">
-              Demo data lấy từ localStorage khi student nộp bài. Chọn attempt để xem drill-down violation logs.
+              Demo data lấy từ localStorage khi student nộp bài. Chọn attempt để xem
+              drill-down violation logs.
             </p>
           </div>
           <Badge variant="success">drill-down</Badge>
         </div>
 
+        {/* ── Filters ── */}
         <Card title="Bộ lọc">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
             <label className="grid gap-1.5 text-sm">
@@ -105,138 +129,259 @@ export default function TeacherResultsPage() {
           </div>
         </Card>
 
-        <div className="grid gap-4 lg:grid-cols-[1fr_420px]">
-          <Card title="Attempts" description="Click 1 attempt để xem chi tiết">
-            {filteredAttempts.length === 0 ? (
-              <div className="text-sm text-zinc-600">
-                Chưa có attempt nào. Hãy vào <span className="font-bold">/student/join</span> làm bài và nộp để tạo demo data.
-              </div>
-            ) : (
-              <div className="brutal-card-soft overflow-auto rounded-xl px-3 py-2">
-                <table className="w-full min-w-[720px] text-sm">
-                  <thead className="text-left text-zinc-500">
-                    <tr>
-                      <th className="py-2 font-bold">Exam</th>
-                      <th className="py-2 font-bold">Student</th>
-                      <th className="py-2 font-bold">Score</th>
-                      <th className="py-2 font-bold">Violations</th>
-                      <th className="py-2 font-bold">Submitted</th>
-                      <th className="py-2"></th>
-                    </tr>
-                  </thead>
-                  <tbody className="text-zinc-700">
-                    {filteredAttempts.map((a) => {
-                      const active = a.id === selectedAttemptId;
-                      return (
-                        <tr
-                          key={a.id}
+        {/* ── Attempts table — full width ── */}
+        <Card
+          title="Attempts"
+          description="Click nút Xem để drill-down violation logs của attempt đó"
+          right={
+            <span className="text-xs font-semibold text-zinc-500">
+              {filteredAttempts.length} kết quả
+            </span>
+          }
+        >
+          {filteredAttempts.length === 0 ? (
+            <div className="rounded-xl border-2 border-dashed border-zinc-300 px-6 py-10 text-center text-sm text-zinc-500">
+              Chưa có attempt nào. Hãy vào{" "}
+              <span className="font-bold text-zinc-800">/student/join</span> làm bài và
+              nộp để tạo demo data.
+            </div>
+          ) : (
+            <div className="overflow-x-auto rounded-xl border-2 border-zinc-200 bg-zinc-50">
+              <table className="w-full min-w-[640px] text-sm">
+                <thead>
+                  <tr className="border-b-2 border-zinc-200 bg-zinc-100 text-left text-xs font-bold uppercase tracking-wide text-zinc-500">
+                    <th className="px-4 py-3">Bài thi</th>
+                    <th className="px-4 py-3">Student</th>
+                    <th className="px-4 py-3 text-center">Score</th>
+                    <th className="px-4 py-3 text-center">Vi phạm</th>
+                    <th className="px-4 py-3">Nộp lúc</th>
+                    <th className="px-4 py-3"></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredAttempts.map((a) => {
+                    const active = a.id === selectedAttemptId;
+                    return (
+                      <tr
+                        key={a.id}
+                        className={[
+                          "border-b border-zinc-200 transition-colors",
+                          active
+                            ? "bg-emerald-50 ring-2 ring-inset ring-emerald-400"
+                            : "hover:bg-white",
+                        ].join(" ")}
+                      >
+                        {/* Bài thi */}
+                        <td className="px-4 py-3">
+                          <div className="font-bold text-zinc-900">{a.examTitle}</div>
+                          <div className="mt-0.5 text-xs text-zinc-400">
+                            Mã: {a.examCode}
+                          </div>
+                        </td>
+
+                        {/* Student */}
+                        <td className="px-4 py-3">
+                          <span className="block max-w-[180px] truncate text-zinc-700">
+                            {a.studentEmail}
+                          </span>
+                        </td>
+
+                        {/* Score */}
+                        <td className="px-4 py-3 text-center">
+                          <span
+                            className={[
+                              "inline-flex items-center justify-center rounded-full border-2 px-3 py-1 text-sm font-black",
+                              a.score >= 8
+                                ? "border-emerald-500 bg-emerald-50 text-emerald-700"
+                                : a.score >= 5
+                                ? "border-amber-500 bg-amber-50 text-amber-700"
+                                : "border-red-500 bg-red-50 text-red-700",
+                            ].join(" ")}
+                          >
+                            {a.score.toFixed(1)}
+                          </span>
+                        </td>
+
+                        {/* Vi phạm */}
+                        <td className="px-4 py-3 text-center">
+                          {a.violationCount > 0 ? (
+                            <span className="inline-flex items-center gap-1 rounded-full border-2 border-amber-500 bg-amber-50 px-3 py-1 text-sm font-bold text-amber-700">
+                              ⚠ {a.violationCount}
+                            </span>
+                          ) : (
+                            <span className="inline-flex items-center rounded-full border-2 border-zinc-300 bg-zinc-100 px-3 py-1 text-sm font-semibold text-zinc-500">
+                              0
+                            </span>
+                          )}
+                        </td>
+
+                        {/* Nộp lúc */}
+                        <td className="px-4 py-3 text-xs text-zinc-500">
+                          {a.submittedAt
+                            ? new Date(a.submittedAt).toLocaleString("vi-VN")
+                            : "—"}
+                        </td>
+
+                        {/* Action */}
+                        <td className="px-4 py-3">
+                          <Button
+                            type="button"
+                            variant={active ? "primary" : "secondary"}
+                            onClick={() =>
+                              setSelectedAttemptId(active ? null : a.id)
+                            }
+                          >
+                            {active ? "Đóng" : "Xem"}
+                          </Button>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </Card>
+
+        {/* ── Drill-down panel — full width, below Attempts ── */}
+        {selectedAttempt ? (
+          <Card
+            title="Drill-down — Chi tiết attempt"
+            description={`Student: ${selectedAttempt.studentEmail}`}
+            right={<Badge variant="success">selected</Badge>}
+            shadow="green"
+          >
+            {/* Two-column layout: summary left | violation logs right */}
+            <div className="grid gap-6 lg:grid-cols-[280px_1fr]">
+              {/* Left: summary stats */}
+              <div className="flex flex-col gap-3">
+                <div className="rounded-xl border-2 border-zinc-200 bg-zinc-50 p-4">
+                  <div className="mb-3 text-xs font-bold uppercase tracking-wide text-zinc-400">
+                    Thông tin attempt
+                  </div>
+                  <dl className="grid gap-2.5 text-sm">
+                    <div className="flex items-start justify-between gap-2">
+                      <dt className="text-zinc-500">Student</dt>
+                      <dd className="max-w-[150px] break-all text-right font-semibold text-zinc-800">
+                        {selectedAttempt.studentEmail}
+                      </dd>
+                    </div>
+                    <div className="flex items-center justify-between gap-2">
+                      <dt className="text-zinc-500">Điểm số</dt>
+                      <dd>
+                        <span
                           className={[
-                            "border-t-2 border-zinc-200",
-                            active ? "bg-[color:var(--surface-mint)]" : "",
+                            "inline-flex items-center justify-center rounded-full border-2 px-3 py-1 text-base font-black",
+                            selectedAttempt.score >= 8
+                              ? "border-emerald-500 bg-emerald-50 text-emerald-700"
+                              : selectedAttempt.score >= 5
+                              ? "border-amber-500 bg-amber-50 text-amber-700"
+                              : "border-red-500 bg-red-50 text-red-700",
                           ].join(" ")}
                         >
-                          <td className="py-3 font-bold">
-                            {a.examTitle} <span className="text-xs text-zinc-500">({a.examCode})</span>
-                          </td>
-                          <td className="py-3">{a.studentEmail}</td>
-                          <td className="py-3">
-                            <Badge variant={a.score >= 8 ? "success" : a.score >= 5 ? "warning" : "danger"}>
-                              {a.score.toFixed(1)}
-                            </Badge>
-                          </td>
-                          <td className="py-3">
-                            <Badge variant={a.violationCount ? "warning" : "default"}>{a.violationCount}</Badge>
-                          </td>
-                          <td className="py-3 text-zinc-500">
-                            {a.submittedAt ? new Date(a.submittedAt).toLocaleString() : "—"}
-                          </td>
-                          <td className="py-3">
-                            <Button type="button" variant="secondary" onClick={() => setSelectedAttemptId(a.id)}>
-                              Xem
-                            </Button>
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
-              </div>
-            )}
-          </Card>
-
-          <Card
-            title="Drill-down"
-            description={selectedAttempt ? `Attempt: ${selectedAttempt.id}` : "Chọn 1 attempt ở bảng bên trái"}
-            right={selectedAttempt ? <Badge variant="success">selected</Badge> : <Badge>idle</Badge>}
-          >
-            {!selectedAttempt ? (
-              <div className="text-sm text-zinc-600">
-                Tip: vào trang student exam, dùng "Demo controls" để tạo vi phạm rồi nộp bài để thấy log ở đây.
-              </div>
-            ) : (
-              <div className="grid gap-4">
-                <div className="grid gap-2 text-sm text-zinc-700">
-                  <div className="flex items-center justify-between">
-                    <span>Student</span>
-                    <span className="font-bold">{selectedAttempt.studentEmail}</span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span>Score</span>
-                    <span className="font-bold">{selectedAttempt.score.toFixed(1)}</span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span>Started</span>
-                    <span className="text-zinc-500">
-                      {new Date(selectedAttempt.startedAt).toLocaleString()}
-                    </span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span>Submitted</span>
-                    <span className="text-zinc-500">
-                      {selectedAttempt.submittedAt ? new Date(selectedAttempt.submittedAt).toLocaleString() : "—"}
-                    </span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span>Violation count</span>
-                    <Badge variant={selectedAttempt.violationCount ? "warning" : "default"}>{selectedAttempt.violationCount}</Badge>
-                  </div>
-                </div>
-
-                <div>
-                  <div className="mb-2 text-sm font-bold text-zinc-900">Violation logs</div>
-                  {filteredViolations.length === 0 ? (
-                    <div className="text-sm text-zinc-600">Không có violation log (hoặc filter đang rỗng).</div>
-                  ) : (
-                    <div className="brutal-card-soft overflow-auto rounded-xl px-3 py-2">
-                      <table className="w-full min-w-[520px] text-sm">
-                        <thead className="text-left text-zinc-500">
-                          <tr>
-                            <th className="py-2 font-bold">Time</th>
-                            <th className="py-2 font-bold">Type</th>
-                            <th className="py-2 font-bold">Description</th>
-                          </tr>
-                        </thead>
-                        <tbody className="text-zinc-700">
-                          {filteredViolations.map((v: DemoViolation) => (
-                            <tr key={v.id} className="border-t-2 border-zinc-200">
-                              <td className="py-3 text-zinc-500">
-                                {new Date(v.createdAt).toLocaleTimeString()}
-                              </td>
-                              <td className="py-3">
-                                <Badge variant="warning">{VIOLATION_LABEL[v.type]}</Badge>
-                              </td>
-                              <td className="py-3">{v.description}</td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
+                          {selectedAttempt.score.toFixed(1)} / 10
+                        </span>
+                      </dd>
                     </div>
-                  )}
+                    <div className="flex items-center justify-between gap-2">
+                      <dt className="text-zinc-500">Vi phạm</dt>
+                      <dd>
+                        {selectedAttempt.violationCount > 0 ? (
+                          <span className="inline-flex items-center gap-1 rounded-full border-2 border-amber-500 bg-amber-50 px-3 py-1 text-sm font-bold text-amber-700">
+                            ⚠ {selectedAttempt.violationCount} lần
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center rounded-full border-2 border-emerald-400 bg-emerald-50 px-3 py-1 text-sm font-semibold text-emerald-700">
+                            ✓ Không vi phạm
+                          </span>
+                        )}
+                      </dd>
+                    </div>
+                    <div className="flex items-center justify-between gap-2 border-t border-zinc-200 pt-2.5">
+                      <dt className="text-zinc-500">Bắt đầu</dt>
+                      <dd className="text-xs text-zinc-600">
+                        {new Date(selectedAttempt.startedAt).toLocaleString("vi-VN")}
+                      </dd>
+                    </div>
+                    <div className="flex items-center justify-between gap-2">
+                      <dt className="text-zinc-500">Nộp bài</dt>
+                      <dd className="text-xs text-zinc-600">
+                        {selectedAttempt.submittedAt
+                          ? new Date(selectedAttempt.submittedAt).toLocaleString("vi-VN")
+                          : "—"}
+                      </dd>
+                    </div>
+                  </dl>
                 </div>
+
+                <button
+                  type="button"
+                  onClick={() => setSelectedAttemptId(null)}
+                  className="rounded-xl border-2 border-zinc-300 bg-white px-4 py-2 text-sm font-semibold text-zinc-600 shadow-[2px_2px_0_#d4d4d8] transition-all hover:shadow-none hover:bg-zinc-50"
+                >
+                  ✕ Đóng drill-down
+                </button>
               </div>
-            )}
+
+              {/* Right: violation logs */}
+              <div>
+                <div className="mb-3 flex items-center justify-between">
+                  <div className="text-sm font-bold text-zinc-900">
+                    Violation Logs
+                    <span className="ml-2 text-xs font-normal text-zinc-400">
+                      ({filteredViolations.length} bản ghi)
+                    </span>
+                  </div>
+                </div>
+
+                {filteredViolations.length === 0 ? (
+                  <div className="rounded-xl border-2 border-dashed border-zinc-300 px-6 py-10 text-center text-sm text-zinc-500">
+                    Không có violation log nào.
+                    {selectedAttempt.violationCount === 0
+                      ? " Student không vi phạm."
+                      : " Thử thay đổi filter Violation type."}
+                  </div>
+                ) : (
+                  <div className="overflow-x-auto rounded-xl border-2 border-zinc-200 bg-zinc-50">
+                    <table className="w-full min-w-[480px] text-sm">
+                      <thead>
+                        <tr className="border-b-2 border-zinc-200 bg-zinc-100 text-left text-xs font-bold uppercase tracking-wide text-zinc-500">
+                          <th className="px-4 py-3 w-32">Thời gian</th>
+                          <th className="px-4 py-3 w-40">Loại vi phạm</th>
+                          <th className="px-4 py-3">Mô tả</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {filteredViolations.map((v: DemoViolation) => (
+                          <tr
+                            key={v.id}
+                            className="border-b border-zinc-200 hover:bg-white transition-colors"
+                          >
+                            <td className="px-4 py-3 text-xs text-zinc-500 whitespace-nowrap">
+                              {new Date(v.createdAt).toLocaleTimeString("vi-VN")}
+                            </td>
+                            <td className="px-4 py-3">
+                              <Badge variant={VIOLATION_COLOR[v.type]}>
+                                {VIOLATION_LABEL[v.type]}
+                              </Badge>
+                            </td>
+                            <td className="px-4 py-3 text-zinc-700">{v.description}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </div>
+            </div>
           </Card>
-        </div>
+        ) : (
+          /* Placeholder khi chưa chọn attempt */
+          <div className="rounded-2xl border-2 border-dashed border-zinc-300 px-6 py-8 text-center text-sm text-zinc-400">
+            <div className="mb-1 text-2xl">👆</div>
+            Chọn một attempt ở bảng trên để xem chi tiết vi phạm
+          </div>
+        )}
       </div>
     </AppShell>
   );

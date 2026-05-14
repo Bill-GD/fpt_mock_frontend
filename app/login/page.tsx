@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 export default function LoginPage() {
   return (
     <div className="flex flex-1 items-center justify-center bg-[color:var(--surface-cream)] py-12">
-      <div className="container-app w-full max-w-sm">
+      <div className="mx-auto w-full max-w-lg px-4 sm:px-6">
         <div className="mb-6 text-center">
           <div className="mx-auto inline-block rounded-full border-2 border-[color:var(--border)] bg-[color:var(--primary)] px-5 py-2 text-sm font-bold text-white shadow-[3px_3px_0_#1a1a1a]">
             SmartQuiz
@@ -17,7 +17,7 @@ export default function LoginPage() {
         </div>
 
         <Card shadow="green">
-          <form className="grid gap-4">
+          <form className="grid gap-3">
             <Input label="Email" type="email" placeholder="you@example.com" autoComplete="email" required />
             <Input label="Mật khẩu" type="password" placeholder="••••••••" autoComplete="current-password" required />
 

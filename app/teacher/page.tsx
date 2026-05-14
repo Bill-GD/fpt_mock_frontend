@@ -5,9 +5,11 @@ import { AppShell } from "@/components/layout/app-shell";
 import { Badge } from "@/components/ui/badge";
 import { ButtonLink } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { SkeletonGrid } from "@/components/ui/skeleton";
 import { listExams, listRooms, listAttempts, listViolations } from "@/lib/demo-store";
 
 export default function TeacherDashboardPage() {
+  const [mounted, setMounted] = useState(false);
   const [stats, setStats] = useState({ exams: 0, rooms: 0, attempts: 0, violations: 0 });
 
   useEffect(() => {
@@ -20,6 +22,7 @@ export default function TeacherDashboardPage() {
       });
     };
     load();
+    setMounted(true);
     window.addEventListener("storage", load);
     window.addEventListener("focus", load);
     return () => {
@@ -55,6 +58,9 @@ export default function TeacherDashboardPage() {
           </div>
         </div>
 
+        {!mounted ? (
+          <SkeletonGrid count={4} cols={2} />
+        ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <Card title="Đề thi" shadow="green">
             <div className="flex items-end justify-between">
@@ -81,6 +87,7 @@ export default function TeacherDashboardPage() {
             </div>
           </Card>
         </div>
+        )}
 
         <Card
           title="Bắt đầu nhanh"

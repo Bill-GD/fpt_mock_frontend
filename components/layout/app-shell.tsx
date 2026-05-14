@@ -10,27 +10,28 @@ export type NavItem = {
 };
 
 function SidebarContent({
-  title,
-  subtitle,
   nav,
   onNavClick,
 }: {
-  title: string;
-  subtitle?: string;
   nav: NavItem[];
   onNavClick?: () => void;
 }) {
   return (
     <>
-      <div className="flex h-16 items-center gap-3 border-b-2 border-[color:var(--border)] px-5">
-        <div className="grid h-9 w-9 place-items-center rounded-full border-2 border-white bg-[color:var(--primary)] text-white font-bold text-sm shadow-[2px_2px_0_#1a1a1a]">
+      {/* Brand logo */}
+      <Link
+        href="/"
+        className="flex h-16 items-center gap-3 border-b-2 border-[color:var(--border)] px-5 transition-opacity hover:opacity-80"
+      >
+        <div className="grid h-9 w-9 shrink-0 place-items-center rounded-full border-2 border-white bg-[color:var(--primary)] text-white font-bold text-sm shadow-[2px_2px_0_#1a1a1a]">
           SQ
         </div>
         <div className="min-w-0 leading-tight">
-          <div className="truncate text-sm font-bold text-white">{title}</div>
-          {subtitle ? <div className="truncate text-xs text-white/60">{subtitle}</div> : null}
+          <div className="truncate text-sm font-bold text-white">SmartQuiz AI</div>
+          <div className="truncate text-xs text-white/50">Hệ thống thi trực tuyến</div>
         </div>
-      </div>
+      </Link>
+
       <nav className="flex-1 overflow-y-auto px-3 py-4">
         <ul className="grid gap-1">
           {nav.map((item) => (
@@ -72,7 +73,7 @@ export function AppShell({
     <div className="flex min-h-full flex-1">
       {/* Desktop sidebar */}
       <aside className="hidden w-72 shrink-0 border-r-2 border-[color:var(--border)] bg-header-bg lg:flex lg:flex-col">
-        <SidebarContent title={title} subtitle={subtitle} nav={nav} />
+        <SidebarContent nav={nav} />
       </aside>
 
       {/* Mobile sidebar overlay */}
@@ -96,8 +97,6 @@ export function AppShell({
               ✕
             </button>
             <SidebarContent
-              title={title}
-              subtitle={subtitle}
               nav={nav}
               onNavClick={() => setMobileOpen(false)}
             />
@@ -105,7 +104,7 @@ export function AppShell({
         </div>
       ) : null}
 
-      <div className="flex min-w-0 flex-1 flex-col">
+      <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
         {/* Header bar */}
         <header className="sticky top-0 z-10 border-b-2 border-[color:var(--border)] bg-header-bg">
           <div className="container-app flex h-16 items-center justify-between gap-3">
@@ -123,9 +122,15 @@ export function AppShell({
               </svg>
             </button>
 
-            <div className="min-w-0 flex-1">
+            {/* Page title — mobile only (sidebar already shows brand on desktop) */}
+            <div className="min-w-0 flex-1 lg:hidden">
               <div className="truncate text-sm font-bold text-white">{title}</div>
               {subtitle ? <div className="truncate text-xs text-white/60">{subtitle}</div> : null}
+            </div>
+            {/* Desktop: show page context */}
+            <div className="hidden min-w-0 flex-1 lg:block">
+              <div className="truncate text-sm font-bold text-white">{title}</div>
+              {subtitle ? <div className="truncate text-xs text-white/80">{subtitle}</div> : null}
             </div>
 
             <div className="flex shrink-0 items-center gap-2">
@@ -145,7 +150,7 @@ export function AppShell({
           </div>
         </header>
 
-        <main className="container-app w-full flex-1 py-6">{children}</main>
+        <main className="container-app min-w-0 w-full flex-1 py-6 overflow-x-hidden">{children}</main>
       </div>
     </div>
   );

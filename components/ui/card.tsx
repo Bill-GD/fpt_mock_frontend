@@ -20,7 +20,7 @@ export function Card({ className, title, description, right, shadow = "dark", ch
   return (
     <section
       className={[
-        "rounded-2xl border-2 border-[color:var(--border)] bg-white",
+        "min-w-0 rounded-2xl border-2 border-[color:var(--border)] bg-white",
         shadowMap[shadow],
         className,
       ]
@@ -37,7 +37,7 @@ export function Card({ className, title, description, right, shadow = "dark", ch
           {right ? <div className="shrink-0">{right}</div> : null}
         </header>
       ) : null}
-      <div className="px-5 py-4">{children}</div>
+      <div className="px-4 py-4">{children}</div>
     </section>
   );
 }

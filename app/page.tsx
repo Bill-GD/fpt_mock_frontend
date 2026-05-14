@@ -188,14 +188,46 @@ export default function Home() {
       </main>
 
       {/* ── FOOTER — dark ── */}
-      <footer className="border-t-2 border-[color:var(--border)] bg-[#1a1a1a] py-10 text-sm text-white/70">
-        <div className="container-app flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <div className="font-bold text-white">SmartQuiz AI</div>
-          <div className="flex gap-6 font-semibold">
-            <span>Teacher: /teacher</span>
-            <span>Student: /student</span>
+      <footer className="border-t-2 border-[color:var(--border)] bg-[#111111] text-sm text-white/60">
+        <div className="container-app flex flex-col items-center justify-between gap-6 py-10 sm:flex-row">
+
+          {/* Brand */}
+          <div className="flex items-center gap-3">
+            <div className="grid h-10 w-10 shrink-0 place-items-center rounded-full border-2 border-white bg-[color:var(--primary)] text-white font-black text-sm shadow-[3px_3px_0_#1a1a1a]">
+              SQ
+            </div>
+            <div>
+              <div className="text-sm font-black text-white">SmartQuiz AI</div>
+              <div className="text-xs text-white/40">Hệ thống thi trực tuyến</div>
+            </div>
           </div>
-          <div>© {new Date().getFullYear()} SmartQuiz AI. All rights reserved.</div>
+
+          {/* Tech logos — emoji only, no text */}
+          <div className="flex items-center gap-3">
+            {[
+              { name: "Next.js",     emoji: "▲" },
+              { name: "NestJS",      emoji: "🦅" },
+              { name: "Gemini AI",   emoji: "✦" },
+              { name: "PostgreSQL",  emoji: "🐘" },
+              { name: "Docker",      emoji: "🐳" },
+              { name: "Socket.IO",   emoji: "⚡" },
+              { name: "Prisma",      emoji: "◆" },
+              { name: "face-api.js", emoji: "👁" },
+            ].map((tech) => (
+              <span
+                key={tech.name}
+                title={tech.name}
+                className="grid h-10 w-10 place-items-center rounded-full border border-white/10 bg-white/5 text-xl transition hover:border-white/30 hover:bg-white/10 hover:scale-110 cursor-default"
+              >
+                {tech.emoji}
+              </span>
+            ))}
+          </div>
+
+          {/* Copyright */}
+          <div className="text-xs text-white/40 text-center sm:text-right">
+            © {new Date().getFullYear()} SmartQuiz AI.<br className="hidden sm:block" /> All rights reserved.
+          </div>
         </div>
       </footer>
     </div>

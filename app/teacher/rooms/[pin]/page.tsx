@@ -162,6 +162,7 @@ export default function TeacherRoomDetailPage({ params }: { params: Promise<{ pi
             </p>
           </div>
           <div className="flex gap-2">
+            <ButtonLink href={`/teacher/rooms/${pin}/leaderboard`}>🏆 Leaderboard</ButtonLink>
             {room.status === "waiting" ? (
               <Button onClick={handleStart}>Bắt đầu thi</Button>
             ) : room.status === "in_progress" ? (

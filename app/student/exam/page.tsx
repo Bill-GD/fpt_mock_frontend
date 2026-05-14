@@ -1,7 +1,8 @@
 "use client";
 
-import { Suspense, useEffect, useMemo, useState } from "react";
+import { Suspense, useEffect, useMemo, useState, useRef, useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import * as faceapi from '@vladmandic/face-api';
 import { AppShell } from "@/components/layout/app-shell";
 import { Badge } from "@/components/ui/badge";
 import { Button, ButtonLink } from "@/components/ui/button";
@@ -45,6 +46,11 @@ function StudentExamRunnerContent() {
   });
   const [violationLog, setViolationLog] = useState<DemoViolation[]>([]);
 
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const [modelsLoaded, setModelsLoaded] = useState(false);
+  const [cameraError, setCameraError] = useState<string | null>(null);
+  const lastCameraViolationTime = useRef(0);
+
   useEffect(() => {
     const timer = window.setInterval(() => {
       setTimeLeftSeconds((previous) => {
@@ -61,7 +67,7 @@ function StudentExamRunnerContent() {
     };
   }, []);
 
-  const pushViolation = (type: ViolationType, description: string) => {
+  const pushViolation = useCallback((type: ViolationType, description: string) => {
     const createdAt = new Date().toISOString();
     const attemptId = "pending";
     const item: DemoViolation = {
@@ -86,9 +92,75 @@ function StudentExamRunnerContent() {
     };
 
     setWarningMessage(description);
-    toast.push({ title: titleMap[type], message: description, variant: "warning" });
+    toast.push({ title: titleMap[type], message: description, variant: "danger" });
     window.setTimeout(() => setWarningMessage(null), 4500);
-  };
+  }, [toast]);
+
+  // AI Camera Init
+  useEffect(() => {
+    const loadModels = async () => {
+      try {
+        await Promise.all([
+          faceapi.nets.tinyFaceDetector.loadFromUri('/models'),
+          faceapi.nets.faceLandmark68Net.loadFromUri('/models'),
+        ]);
+        setModelsLoaded(true);
+      } catch (err: any) {
+        console.error("Failed to load AI models", err);
+        setCameraError(`Lỗi tải AI: ${err.message || err}`);
+      }
+    };
+    loadModels();
+  }, []);
+
+  useEffect(() => {
+    if (!modelsLoaded) return;
+    let stream: MediaStream | null = null;
+    const startVideo = async () => {
+      try {
+        stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+        if (videoRef.current) {
+          videoRef.current.srcObject = stream;
+        }
+      } catch (err) {
+        setCameraError("Không thể truy cập camera. Vui lòng cấp quyền.");
+        pushViolation("camera_missing", "Người dùng từ chối quyền truy cập camera.");
+      }
+    };
+    startVideo();
+
+    return () => {
+      if (stream) {
+        stream.getTracks().forEach(t => t.stop());
+      }
+    };
+  }, [modelsLoaded, pushViolation]);
+
+  useEffect(() => {
+    if (!modelsLoaded || cameraError) return;
+    
+    const interval = window.setInterval(async () => {
+      if (videoRef.current && videoRef.current.readyState === 4) {
+        const detections = await faceapi.detectAllFaces(
+          videoRef.current,
+          new faceapi.TinyFaceDetectorOptions({ inputSize: 160 })
+        ).withFaceLandmarks();
+
+        const now = Date.now();
+        if (now - lastCameraViolationTime.current > 5000) {
+          if (detections.length === 0) {
+            pushViolation("camera_missing", "Không tìm thấy khuôn mặt trong khung hình.");
+            lastCameraViolationTime.current = now;
+          } else if (detections.length > 1) {
+            pushViolation("camera_multiple_faces", `Phát hiện ${detections.length} khuôn mặt.`);
+            lastCameraViolationTime.current = now;
+          }
+        }
+      }
+    }, 3000);
+
+    return () => window.clearInterval(interval);
+  }, [modelsLoaded, cameraError, pushViolation]);
 
   useEffect(() => {
     const onVisibility = () => {
@@ -99,7 +171,7 @@ function StudentExamRunnerContent() {
     document.addEventListener("visibilitychange", onVisibility);
     return () => document.removeEventListener("visibilitychange", onVisibility);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [pushViolation]);
 
   // Anti-cheat: block copy/paste
   useEffect(() => {
@@ -116,7 +188,7 @@ function StudentExamRunnerContent() {
     document.addEventListener("keydown", onKeyDown);
     return () => document.removeEventListener("keydown", onKeyDown);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [pushViolation]);
 
   // Anti-cheat: block right-click
   useEffect(() => {
@@ -238,7 +310,7 @@ function StudentExamRunnerContent() {
         ) : null}
 
         {warningMessage ? (
-          <div className="rounded-2xl border-2 border-amber-500 bg-[#FFF3CD] px-4 py-3 text-sm font-bold text-amber-950 shadow-[3px_3px_0_#1a1a1a]">
+          <div className="rounded-2xl border-2 border-red-500 bg-[#FFD6DD] px-4 py-3 text-sm font-bold text-red-900 shadow-[3px_3px_0_#1a1a1a]">
             {warningMessage}
           </div>
         ) : null}
@@ -349,6 +421,29 @@ function StudentExamRunnerContent() {
               <div className="rounded-xl border-2 border-[color:var(--border)] bg-[color:var(--surface-warm)] p-3 text-xs font-semibold text-zinc-600 shadow-[2px_2px_0_#1a1a1a]">
                 Câu hiện tại: <span className="font-bold">{currentQuestionIndex + 1}</span> • Trạng thái:{" "}
                 <span className="font-bold">{currentAnswer ? "Đã trả lời" : "Chưa trả lời"}</span>
+              </div>
+
+              <div className="grid gap-2">
+                <div className="text-xs font-bold text-zinc-700">Camera AI</div>
+                <div className="relative aspect-video w-full overflow-hidden rounded-xl bg-zinc-900 border-2 border-[color:var(--border)] shadow-[3px_3px_0_#1a1a1a]">
+                  <video 
+                    ref={videoRef}
+                    autoPlay 
+                    muted 
+                    playsInline 
+                    className="h-full w-full object-cover scale-x-[-1]"
+                  />
+                  {!modelsLoaded && (
+                    <div className="absolute inset-0 grid place-items-center bg-black/60 text-xs font-bold text-white px-2 text-center leading-relaxed">
+                      Đang khởi tạo AI...
+                    </div>
+                  )}
+                  {cameraError && (
+                    <div className="absolute inset-0 grid place-items-center bg-red-900/90 p-3 text-center text-xs font-bold text-white leading-relaxed">
+                      {cameraError}
+                    </div>
+                  )}
+                </div>
               </div>
 
               <div className="grid gap-2">

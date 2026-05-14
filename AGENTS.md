@@ -20,42 +20,42 @@
 ## 🔄 Main Flow — Tổng quan luồng chính
 
 ```
-┌─────────────────────────────────────────────────────────────────────┐
+┌────────────────────────────────────────────────────────────────────┐
 │                        TEACHER FLOW                                │
-│                                                                     │
+│                                                                    │
 │  1. Đăng ký (email + password + role=Teacher)                      │
 │  2. Xác thực email qua link (nodemailer)                           │
 │  3. Đăng nhập → Teacher Dashboard                                  │
-│  4. Tạo bài thi bằng 1 trong 3 cách:                              │
-│     ┌────────────────┐ ┌────────────────┐ ┌──────────────────────┐ │
-│     │ Cách 1: Excel  │ │ Cách 2: Manual │ │ Cách 3: AI Generate  │ │
-│     │ Upload .xlsx   │ │ Nhập từng câu  │ │ Nhập chủ đề + số    │ │
-│     │ → Parse + Preview│ │ kiểu Kahoot  │ │ câu + độ khó → AI   │ │
-│     │ → Confirm lưu  │ │ → Lưu trực tiếp│ │ → Preview → Lưu    │ │
-│     └────────────────┘ └────────────────┘ └──────────────────────┘ │
-│  5. Cấu hình: thời gian mở (start/end), duration                  │
-│  6. Hệ thống sinh mã code phòng thi (6-8 ký tự)                   │
-│  7. Xem kết quả + thống kê vi phạm                                │
-└─────────────────────────────────────────────────────────────────────┘
+│  4. Tạo bài thi bằng 1 trong 3 cách:                               │
+│   ┌──────────────────┐ ┌────────────────┐ ┌──────────────────────┐ │
+│   │ Cách 1: Excel    │ │ Cách 2: Manual │ │ Cách 3: AI Generate  │ │
+│   │ Upload .xlsx     │ │ Nhập từng câu  │ │ Nhập chủ đề + số     │ │
+│   │ → Parse + Preview│ │ kiểu Kahoot    │ │ câu + độ khó → AI    │ │
+│   │ → Confirm lưu    │ │ → Lưu trực tiếp│ │ → Preview → Lưu      │ │
+│   └──────────────────┘ └────────────────┘ └──────────────────────┘ │
+│  5. Cấu hình: thời gian mở (start/end), duration                   │
+│  6. Hệ thống sinh mã code phòng thi (6-8 ký tự)                    │
+│  7. Xem kết quả + thống kê vi phạm                                 │
+└────────────────────────────────────────────────────────────────────┘
 
-┌─────────────────────────────────────────────────────────────────────┐
-│                        STUDENT FLOW                                │
-│                                                                     │
+┌───────────────────────────────────────────────────────────────────┐
+│                        STUDENT FLOW                               │
+│                                                                   │
 │  1. Đăng ký + xác thực email                                      │
-│  2. Đăng nhập → Student Dashboard                                  │
-│     - Grid ô vuông: bài thi đã làm/sắp làm (tên, ngày, điểm)    │
+│  2. Đăng nhập → Student Dashboard                                 │
+│     - Grid ô vuông: bài thi đã làm/sắp làm (tên, ngày, điểm)      │
 │  3. Nhập mã code phòng thi → Vào bài                              │
-│  4. Làm bài thi:                                                   │
+│  4. Làm bài thi:                                                  │
 │     - Câu hỏi + radio options + countdown timer                   │
-│     - ⚠️ HỆ THỐNG CHỐNG GIAN LẬN hoạt động:                      │
+│     - ⚠️ HỆ THỐNG CHỐNG GIAN LẬN hoạt động:                        │
 │       • Camera: face-api.js phát hiện nhiều mặt / nhìn ngoài      │
-│       • Tab-switch detection (Page Visibility API)                 │
-│       • Keyboard: chặn Ctrl+C/V, log mọi phím                    │
-│       • Right-click: chặn contextmenu                              │
+│       • Tab-switch detection (Page Visibility API)                │
+│       • Keyboard: chặn Ctrl+C/V, log mọi phím                     │
+│       • Right-click: chặn contextmenu                             │
 │       • Socket.IO: gửi vi phạm real-time về server                │
 │  5. Nộp bài (thủ công hoặc tự động khi hết giờ)                   │
-│  6. Xem kết quả: điểm, số câu đúng, vi phạm, xem lại từng câu   │
-└─────────────────────────────────────────────────────────────────────┘
+│  6. Xem kết quả: điểm, số câu đúng, vi phạm, xem lại từng câu     │
+└───────────────────────────────────────────────────────────────────┘
 ```
 
 ### Luồng chi tiết:

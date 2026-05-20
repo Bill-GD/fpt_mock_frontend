@@ -1,7 +1,7 @@
 import { io, type Socket } from "socket.io-client";
 import { normalizeViolationType, type ViolationTypeCode } from "@/lib/api";
 
-const WS_URL = process.env.NEXT_PUBLIC_WS_URL ?? "http://localhost:8080";
+const WS_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8080";
 
 /** Matches backend RoomIdentificationDto — `code` is always required (8 chars). */
 export type RoomIdentificationPayload = {

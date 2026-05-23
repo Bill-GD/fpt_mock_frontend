@@ -18,7 +18,6 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 // face-api must be loaded dynamically (browser-only, needs TextEncoder)
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 type FaceApiModule = typeof import('@vladmandic/face-api');
 
 type OptionId = 'A' | 'B' | 'C' | 'D';
@@ -49,7 +48,7 @@ function StudentExamRunnerContent() {
   // Exam data from API
   const [questions, setQuestions] = useState<Question[]>([]);
   const [examTitle, setExamTitle] = useState('Đang tải...');
-  const [durationMinutes, setDurationMinutes] = useState(60);
+  const [, setDurationMinutes] = useState(60);
   const [examId, setExamId] = useState<number | null>(null);
   const [loadingExam, setLoadingExam] = useState(true);
   const [attemptId, setAttemptId] = useState<number | null>(null);
@@ -237,7 +236,7 @@ function StudentExamRunnerContent() {
     s.on('room_ended', onServerFinalize);
     
     return () => {
-      s.off("connect", handleJoin);
+      s.off('connect', handleJoin);
       s.off('room_start');
       s.off('room_time_up');
       s.off('force_submit', onServerFinalize);
@@ -267,7 +266,7 @@ function StudentExamRunnerContent() {
       const initialAnswers = Array(detail.questions.length).fill(null);
       if (prevAnswers && prevAnswers.length > 0) {
         detail.questions.forEach((q, idx) => {
-          const pa = prevAnswers.find((a: any) => a.questionId === q.id);
+          const pa = prevAnswers.find((a) => a.questionId === q.id);
           if (pa) {
             initialAnswers[idx] = pa.selectedOptionId;
           }

@@ -1,52 +1,51 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
-import { Button, ButtonLink } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { useToast } from "@/components/ui/toast";
-import { useAuth } from "@/lib/auth-context";
-import { ApiError } from "@/lib/api";
+import { Button, ButtonLink } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { useToast } from '@/components/ui/toast';
+import { ApiError } from '@/lib/api';
+import { useAuth } from '@/lib/auth-context';
+import { useRouter } from 'next/navigation';
+import { SubmitEvent, useState } from 'react';
 
 export default function LoginPage() {
   const router = useRouter();
   const toast = useToast();
   const { login } = useAuth();
-
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
-  const handleSubmit = async (e: React.FormEvent) => {
+  
+  const handleSubmit = async (e: SubmitEvent) => {
     e.preventDefault();
     if (!email || !password) {
-      setError("Vui lòng nhập đầy đủ email và mật khẩu.");
+      setError('Vui lòng nhập đầy đủ email và mật khẩu.');
       return;
     }
     setLoading(true);
     setError(null);
     try {
       const user = await login(email, password);
-      toast.push({ title: "Đăng nhập thành công!", variant: "success" });
-      // Redirect by role
-      if ((user as any)?.role === "teacher") {
-        router.push("/teacher");
+      toast.push({ title: 'Đăng nhập thành công!', variant: 'success' });
+      if (user.role === 'teacher') {
+        router.push('/teacher');
       } else {
-        router.push("/student");
+        router.push('/student');
       }
     } catch (err) {
       if (err instanceof ApiError) {
         setError(err.message);
       } else {
-        setError("Đăng nhập thất bại. Vui lòng thử lại.");
+        setError('Đăng nhập thất bại. Vui lòng thử lại.');
       }
     } finally {
       setLoading(false);
     }
   };
-
+  
   return (
     <div className="flex flex-1 items-center justify-center bg-(--surface-cream) py-12">
       <div className="mx-auto w-full max-w-lg px-4 sm:px-6">
@@ -60,7 +59,7 @@ export default function LoginPage() {
             Chọn role sau khi đăng nhập để vào dashboard phù hợp.
           </p>
         </div>
-
+        
         <Card shadow="green">
           <form className="grid gap-3" onSubmit={handleSubmit}>
             <Input
@@ -81,7 +80,7 @@ export default function LoginPage() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
             />
-
+            
             {error && (
               <div
                 className="rounded-xl border-2 border-red-500 bg-[#FFD6DD] px-3 py-2 text-sm font-semibold text-red-700"
@@ -89,18 +88,18 @@ export default function LoginPage() {
                 {error}
               </div>
             )}
-
+            
             <div className="grid gap-3">
               <Button type="submit" disabled={loading}>
-                {loading ? "Đang đăng nhập..." : "Đăng nhập"}
+                {loading ? 'Đang đăng nhập...' : 'Đăng nhập'}
               </Button>
               <ButtonLink href="/" variant="ghost">
                 Quay lại trang chủ
               </ButtonLink>
             </div>
-
+            
             <div className="text-center text-sm text-zinc-600">
-              Chưa có tài khoản?{" "}
+              Chưa có tài khoản?{' '}
               <ButtonLink href="/register" variant="ghost" className="inline-flex h-auto px-1 py-0">
                 Đăng ký
               </ButtonLink>

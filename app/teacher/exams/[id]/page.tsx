@@ -1,37 +1,37 @@
-"use client";
+'use client';
 
-import { useEffect, useState, use } from "react";
-import { useRouter } from "next/navigation";
-import { AppShell } from "@/components/layout/app-shell";
-import { Badge } from "@/components/ui/badge";
-import { Button, ButtonLink } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { EmptyState } from "@/components/ui/empty-state";
-import { SkeletonGrid } from "@/components/ui/skeleton";
-import { useToast } from "@/components/ui/toast";
-import { useAuth } from "@/lib/auth-context";
+import { AppShell } from '@/components/layout/app-shell';
+import { Badge } from '@/components/ui/badge';
+import { Button, ButtonLink } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
+import { EmptyState } from '@/components/ui/empty-state';
+import { SkeletonGrid } from '@/components/ui/skeleton';
+import { useToast } from '@/components/ui/toast';
 import {
+  ApiError,
+  createRoom,
+  type ExamDetail,
   getExamDetail,
   getRoomsByExam,
-  createRoom,
   openRoom,
-  ApiError,
-  type ExamDetail,
   type RoomSummary,
-} from "@/lib/api";
+} from '@/lib/api';
+import { useAuth } from '@/lib/auth-context';
+import { useRouter } from 'next/navigation';
+import { use, useCallback, useEffect, useState } from 'react';
 
 const TEACHER_NAV = [
-  { href: "/teacher", label: "Tổng quan" },
-  { href: "/teacher/exams", label: "Danh sách đề" },
-  { href: "/teacher/exams/new", label: "Tạo đề mới", badge: "CSV/Manual/AI" },
-  { href: "/teacher/results", label: "Kết quả & Vi phạm" },
+  { href: '/teacher', label: 'Tổng quan' },
+  { href: '/teacher/exams', label: 'Danh sách đề' },
+  { href: '/teacher/exams/new', label: 'Tạo đề mới', badge: 'CSV/Manual/AI' },
+  { href: '/teacher/results', label: 'Kết quả & Vi phạm' },
 ];
 
-function roomStatusBadge(status: RoomSummary["status"]) {
-  if (status === "ACTIVE") return { label: "Đang thi", variant: "warning" as const };
-  if (status === "WAITING") return { label: "Chờ bắt đầu", variant: "success" as const };
-  if (status === "FINISHED") return { label: "Đã kết thúc", variant: "danger" as const };
-  return { label: "Chưa mở", variant: "default" as const };
+function roomStatusBadge(status: RoomSummary['status']) {
+  if (status === 'ACTIVE') return { label: 'Đang thi', variant: 'warning' as const };
+  if (status === 'WAITING') return { label: 'Chờ bắt đầu', variant: 'success' as const };
+  if (status === 'FINISHED') return { label: 'Đã kết thúc', variant: 'danger' as const };
+  return { label: 'Chưa mở', variant: 'default' as const };
 }
 
 export default function TeacherExamDetailPage({
@@ -43,12 +43,12 @@ export default function TeacherExamDetailPage({
   const router = useRouter();
   const toast = useToast();
   const { user, loading: authLoading } = useAuth();
-
+  
   const [exam, setExam] = useState<ExamDetail | null>(null);
   const [rooms, setRooms] = useState<RoomSummary[]>([]);
   const [loading, setLoading] = useState(true);
-
-  const reload = async () => {
+  
+  const reload = useCallback(async () => {
     try {
       const [e, r] = await Promise.all([
         getExamDetail(Number(id)),
@@ -57,50 +57,56 @@ export default function TeacherExamDetailPage({
       setExam(e);
       setRooms(r);
     } catch {
-      toast.push({ title: "Không thể tải thông tin đề thi", variant: "danger" });
+      toast.push({ title: 'Không thể tải thông tin đề thi', variant: 'danger' });
     } finally {
       setLoading(false);
     }
-  };
-
+  }, [id, toast]);
+  
   useEffect(() => {
     if (authLoading) return;
-    if (!user) { router.push("/login"); return; }
-    if (user.role !== "teacher") { router.push("/student"); return; }
+    if (!user) {
+      router.push('/login');
+      return;
+    }
+    if (user.role !== 'teacher') {
+      router.push('/student');
+      return;
+    }
     reload();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user, authLoading, id]);
-
+  
   /* Tự làm mới danh sách phòng đang ACTIVE (phòng hết giờ chuyển FINISHED trên server) */
   useEffect(() => {
-    const hasActive = rooms.some((r) => r.status === "ACTIVE");
+    const hasActive = rooms.some((r) => r.status === 'ACTIVE');
     if (!hasActive) return;
     const timer = setInterval(() => void reload(), 10000);
     return () => clearInterval(timer);
   }, [rooms, reload]);
-
+  
   const handleCreateRoom = async () => {
     try {
       const room = await createRoom(Number(id));
-      toast.push({ title: "Tạo phòng thành công", message: `Code: ${room.code}`, variant: "success" });
+      toast.push({ title: 'Tạo phòng thành công', message: `Code: ${room.code}`, variant: 'success' });
       reload();
     } catch (err) {
-      const message = err instanceof ApiError ? err.message : "Không thể tạo phòng thi.";
-      toast.push({ title: "Lỗi tạo phòng thi", message, variant: "danger" });
+      const message = err instanceof ApiError ? err.message : 'Không thể tạo phòng thi.';
+      toast.push({ title: 'Lỗi tạo phòng thi', message, variant: 'danger' });
     }
   };
-
+  
   const handleOpenRoom = async (roomId: number) => {
     try {
       await openRoom(roomId);
-      toast.push({ title: "Phòng thi đã mở!", message: "Học viên có thể vào phòng bằng mã PIN.", variant: "success" });
+      toast.push({ title: 'Phòng thi đã mở!', message: 'Học viên có thể vào phòng bằng mã PIN.', variant: 'success' });
       reload();
     } catch (err) {
-      const message = err instanceof ApiError ? err.message : "Không thể mở phòng thi.";
-      toast.push({ title: "Lỗi mở phòng thi", message, variant: "danger" });
+      const message = err instanceof ApiError ? err.message : 'Không thể mở phòng thi.';
+      toast.push({ title: 'Lỗi mở phòng thi', message, variant: 'danger' });
     }
   };
-
+  
   if (loading) {
     return (
       <AppShell title="Teacher Dashboard" subtitle="Chi tiết đề thi" nav={TEACHER_NAV}>
@@ -108,7 +114,7 @@ export default function TeacherExamDetailPage({
       </AppShell>
     );
   }
-
+  
   if (!exam) {
     return (
       <AppShell title="Teacher Dashboard" subtitle="Chi tiết đề thi" nav={TEACHER_NAV}>
@@ -116,12 +122,12 @@ export default function TeacherExamDetailPage({
           icon="🔍"
           title="Không tìm thấy đề thi"
           description="Đề thi không tồn tại hoặc bạn không có quyền truy cập."
-          action={{ href: "/teacher/exams", label: "Về danh sách", variant: "secondary" }}
+          action={{ href: '/teacher/exams', label: 'Về danh sách', variant: 'secondary' }}
         />
       </AppShell>
     );
   }
-
+  
   return (
     <AppShell title="Teacher Dashboard" subtitle="Chi tiết đề thi" nav={TEACHER_NAV}>
       <div className="page-stack">
@@ -129,14 +135,14 @@ export default function TeacherExamDetailPage({
           <div>
             <h1 className="text-2xl font-black text-zinc-900">{exam.title}</h1>
             <p className="mt-1 text-sm text-zinc-600">
-              {exam.description || "Không có mô tả"} • {exam.durationMinutes} phút • {exam.questions.length} câu
+              {exam.description || 'Không có mô tả'} • {exam.durationMinutes} phút • {exam.questions.length} câu
             </p>
           </div>
           <div className="flex gap-2">
             <Button onClick={handleCreateRoom}>Tạo phòng thi</Button>
           </div>
         </div>
-
+        
         <div className="bento-grid">
           <Card title="Câu hỏi" shadow="green">
             <div className="text-3xl font-black text-zinc-900">{exam.questions.length}</div>
@@ -150,7 +156,7 @@ export default function TeacherExamDetailPage({
             </div>
           </Card>
         </div>
-
+        
         {rooms.length > 0 ? (
           <Card
             title="Danh sách phòng thi"
@@ -181,12 +187,12 @@ export default function TeacherExamDetailPage({
                       </p>
                     </div>
                     <div className="flex shrink-0 flex-wrap gap-2">
-                      {r.status === "INACTIVE" && (
+                      {r.status === 'INACTIVE' && (
                         <Button onClick={() => handleOpenRoom(r.id)}>Mở phòng</Button>
                       )}
-                      {(r.status === "WAITING" || r.status === "ACTIVE" || r.status === "FINISHED") && (
+                      {(r.status === 'WAITING' || r.status === 'ACTIVE' || r.status === 'FINISHED') && (
                         <ButtonLink href={`/teacher/rooms/${r.id}`}>
-                          {r.status === "FINISHED" ? "Xem kết quả" : "Xem phòng thi"}
+                          {r.status === 'FINISHED' ? 'Xem kết quả' : 'Xem phòng thi'}
                         </ButtonLink>
                       )}
                     </div>
@@ -202,7 +208,7 @@ export default function TeacherExamDetailPage({
             </Button>
           </Card>
         )}
-
+        
         <Card title="Danh sách câu hỏi" description={`${exam.questions.length} câu`}>
           {exam.questions.length === 0 ? (
             <div className="py-4 text-center text-sm text-zinc-500">Đề thi chưa có câu hỏi nào.</div>
@@ -214,7 +220,8 @@ export default function TeacherExamDetailPage({
                   className="rounded-xl border-2 border-(--border) bg-white p-4 shadow-[3px_3px_0_#1a1a1a]"
                 >
                   <div className="flex items-start gap-3">
-                    <span className="grid h-7 w-7 shrink-0 place-items-center rounded-lg border-2 border-(--border) bg-(--surface-warm) text-xs font-bold text-zinc-900 shadow-[2px_2px_0_#1a1a1a]">
+                    <span
+                      className="grid h-7 w-7 shrink-0 place-items-center rounded-lg border-2 border-(--border) bg-(--surface-warm) text-xs font-bold text-zinc-900 shadow-[2px_2px_0_#1a1a1a]">
                       {idx + 1}
                     </span>
                     <div className="min-w-0 flex-1">
@@ -224,11 +231,11 @@ export default function TeacherExamDetailPage({
                           <div
                             key={opt.id}
                             className={[
-                              "flex items-center gap-2 rounded-lg px-3 py-1.5 text-xs",
+                              'flex items-center gap-2 rounded-lg px-3 py-1.5 text-xs',
                               opt.isCorrect
-                                ? "border-2 border-emerald-500 bg-(--surface-mint) font-bold text-emerald-800"
-                                : "border border-zinc-200 text-zinc-600",
-                            ].join(" ")}
+                                ? 'border-2 border-emerald-500 bg-(--surface-mint) font-bold text-emerald-800'
+                                : 'border border-zinc-200 text-zinc-600',
+                            ].join(' ')}
                           >
                             <span>{opt.content}</span>
                             {opt.isCorrect && <span className="ml-auto text-emerald-600">✓ Đúng</span>}

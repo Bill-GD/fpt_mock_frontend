@@ -527,10 +527,6 @@ export default function LeaderboardPage({
             <AnimatePresence mode="popLayout">
               {remaining.map((entry, idx) => {
                 const rank = idx + 4;
-                const progressPct =
-                  entry.totalQuestions > 0
-                    ? Math.round((entry.answeredCount / entry.totalQuestions) * 100)
-                    : 0;
                 const isCheater = entry.violationCount > 0;
                 const isOnFire = entry.accuracy >= 80 && entry.answeredCount >= 3;
                 

@@ -41,9 +41,9 @@ async function request<T = unknown>(
     headers: { 'Content-Type': 'application/json' },
   };
   if (body !== undefined) init.body = JSON.stringify(body);
-
+  
   const res = await fetch(url, init);
-
+  
   if (!res.ok) {
     let message = `${res.status} ${res.statusText}`;
     try {
@@ -52,10 +52,11 @@ async function request<T = unknown>(
       message = Array.isArray(json?.message)
         ? json.message.join(', ')
         : json?.message ?? json?.error ?? message;
-    } catch { /* ignore */ }
+    } catch { /* ignore */
+    }
     throw new ApiError(res.status, message);
   }
-
+  
   if (res.status === 204) return { success: true, status: 204, message: '', data: undefined as T, error: null };
   return res.json() as Promise<ApiEnvelope<T>>;
 }
@@ -72,7 +73,7 @@ async function requestForm<T = unknown>(
     body: formData,
     // No Content-Type — browser sets multipart boundary automatically
   });
-
+  
   if (!res.ok) {
     let message = `${res.status} ${res.statusText}`;
     try {
@@ -80,7 +81,8 @@ async function requestForm<T = unknown>(
       message = Array.isArray(json?.message)
         ? json.message.join(', ')
         : json?.message ?? message;
-    } catch { /* ignore */ }
+    } catch { /* ignore */
+    }
     throw new ApiError(res.status, message);
   }
   return res.json() as Promise<ApiEnvelope<T>>;
@@ -322,8 +324,10 @@ export async function generateAiQuestionsPreview(
   topic: string,
   difficulty: string,
   quantity: number,
-): Promise<{ questions: any[] }> {
-  const envelope = await api.post<{ questions: any[] }>('/exams/generate-ai-preview', { topic, difficulty, quantity });
+) {
+  const envelope = await api.post<{
+    questions: Question[],
+  }>('/exams/generate-ai-preview', { topic, difficulty, quantity });
   return envelope.data;
 }
 

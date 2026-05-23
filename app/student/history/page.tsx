@@ -75,8 +75,6 @@ export default function StudentHistoryPage() {
             <Card title="Danh sách attempt">
               <div className="grid gap-3">
                 {all.map((a) => {
-                  const total = a.correctCount;
-                  const score = parseFloat(((a.correctCount / 10) * 10).toFixed(1));
                   const passed = a.correctCount >= 5;
                   return (
                     <div

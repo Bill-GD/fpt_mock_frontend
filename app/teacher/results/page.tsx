@@ -1,74 +1,83 @@
-"use client";
+'use client';
 
-import { useEffect, useMemo, useState } from "react";
-import { useRouter } from "next/navigation";
-import { AppShell } from "@/components/layout/app-shell";
-import { Badge } from "@/components/ui/badge";
-import { Button, ButtonLink } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { EmptyState } from "@/components/ui/empty-state";
-import { SkeletonGrid } from "@/components/ui/skeleton";
-import { useAuth } from "@/lib/auth-context";
+import { AppShell } from '@/components/layout/app-shell';
+import { Badge } from '@/components/ui/badge';
+import { ButtonLink } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
+import { EmptyState } from '@/components/ui/empty-state';
+import { SkeletonGrid } from '@/components/ui/skeleton';
 import {
-  listExams,
-  getRoomsByExam,
-  getRoomDetail,
-  getViolationsByAttempt,
-  getViolationLabel,
-  type Exam,
   type AttemptSummary,
+  type Exam,
+  getRoomDetail,
+  getRoomsByExam,
+  getViolationLabel,
+  getViolationsByAttempt,
+  listExams,
   type ViolationDetail,
-} from "@/lib/api";
+} from '@/lib/api';
+import { useAuth } from '@/lib/auth-context';
+import { deferStateUpdate } from '@/lib/utils';
+import { useRouter } from 'next/navigation';
+import { useEffect, useMemo, useState } from 'react';
 
 const TEACHER_NAV = [
-  { href: "/teacher", label: "Tổng quan" },
-  { href: "/teacher/exams", label: "Danh sách đề" },
-  { href: "/teacher/exams/new", label: "Tạo đề mới", badge: "CSV/Manual/AI" },
-  { href: "/teacher/results", label: "Kết quả & Vi phạm" },
+  { href: '/teacher', label: 'Tổng quan' },
+  { href: '/teacher/exams', label: 'Danh sách đề' },
+  { href: '/teacher/exams/new', label: 'Tạo đề mới', badge: 'CSV/Manual/AI' },
+  { href: '/teacher/results', label: 'Kết quả & Vi phạm' },
 ];
 
 type AttemptRow = AttemptSummary & {
   examTitle: string;
+  examQuestionCount: number;
   roomCode: string;
   roomId: number;
 };
 
+
 function violationIcon(type: string): string {
-  const key = type.toUpperCase().replace(/-/g, "_");
+  const key = type.toUpperCase().replace(/-/g, '_');
   const icons: Record<string, string> = {
-    TAB_SWITCH: "🔄",
-    KEYBOARD_COPY: "📋",
-    KEYBOARD_PASTE: "📥",
-    CAMERA_MULTIPLE_FACES: "👥",
-    CAMERA_GAZE_AWAY: "👀",
-    CAMERA_MISSING: "📷",
-    OTHER: "⚠️",
+    TAB_SWITCH: '🔄',
+    KEYBOARD_COPY: '📋',
+    KEYBOARD_PASTE: '📥',
+    CAMERA_MULTIPLE_FACES: '👥',
+    CAMERA_GAZE_AWAY: '👀',
+    CAMERA_MISSING: '📷',
+    OTHER: '⚠️',
   };
-  return icons[key] ?? "⚠️";
+  return icons[key] ?? '⚠️';
 }
 
 export default function TeacherResultsPage() {
   const router = useRouter();
   const { user, loading: authLoading } = useAuth();
-
+  
   const [loading, setLoading] = useState(true);
   const [attempts, setAttempts] = useState<AttemptRow[]>([]);
-  const [selectedExamId, setSelectedExamId] = useState<number | "all">("all");
+  const [selectedExamId, setSelectedExamId] = useState<number | 'all'>('all');
   const [selectedAttemptId, setSelectedAttemptId] = useState<number | null>(null);
   const [exams, setExams] = useState<Exam[]>([]);
   const [violations, setViolations] = useState<ViolationDetail[]>([]);
   const [violationsLoading, setViolationsLoading] = useState(false);
-
+  
   useEffect(() => {
     if (authLoading) return;
-    if (!user) { router.push("/login"); return; }
-    if (user.role !== "teacher") { router.push("/student"); return; }
-
+    if (!user) {
+      router.push('/login');
+      return;
+    }
+    if (user.role !== 'teacher') {
+      router.push('/student');
+      return;
+    }
+    
     const loadAll = async () => {
       try {
         const { exams: examList } = await listExams();
         setExams(examList);
-
+        
         const allAttempts: AttemptRow[] = [];
         for (const exam of examList) {
           const rooms = await getRoomsByExam(exam.id).catch(() => []);
@@ -80,6 +89,7 @@ export default function TeacherResultsPage() {
                   allAttempts.push({
                     ...att,
                     examTitle: exam.title,
+                    examQuestionCount: exam.questionCount,
                     roomCode: room.code,
                     roomId: room.id,
                   });
@@ -97,28 +107,28 @@ export default function TeacherResultsPage() {
         setLoading(false);
       }
     };
-    loadAll();
+    void loadAll();
   }, [user, authLoading, router]);
-
+  
   const filteredAttempts = useMemo(() => {
-    if (selectedExamId === "all") return attempts;
+    if (selectedExamId === 'all') return attempts;
     return attempts.filter((a) => {
       const exam = exams.find((e) => e.title === a.examTitle);
       return exam?.id === selectedExamId;
     });
   }, [attempts, selectedExamId, exams]);
-
+  
   const selected = selectedAttemptId !== null
     ? attempts.find((a) => a.id === selectedAttemptId) ?? null
     : null;
-
+  
   useEffect(() => {
     if (!selectedAttemptId) {
-      setViolations([]);
+      deferStateUpdate(() => setViolations([]));
       return;
     }
     let cancelled = false;
-    setViolationsLoading(true);
+    deferStateUpdate(() => setViolationsLoading(true));
     getViolationsByAttempt(selectedAttemptId).then((list) => {
       if (!cancelled) {
         setViolations(list);
@@ -129,12 +139,12 @@ export default function TeacherResultsPage() {
       cancelled = true;
     };
   }, [selectedAttemptId]);
-
+  
   const totalViolations = filteredAttempts.reduce((s, a) => s + (a.violationCount ?? 0), 0);
   const avgCorrect = filteredAttempts.length > 0
     ? (filteredAttempts.reduce((s, a) => s + a.correctCount, 0) / filteredAttempts.length).toFixed(1)
-    : "—";
-
+    : '—';
+  
   return (
     <AppShell title="Teacher Dashboard" subtitle="Kết quả & Vi phạm" nav={TEACHER_NAV}>
       <div className="page-stack">
@@ -144,7 +154,7 @@ export default function TeacherResultsPage() {
             <p className="mt-1 text-sm text-zinc-600">Xem chi tiết kết quả bài thi và vi phạm của học viên.</p>
           </div>
         </div>
-
+        
         {/* Stats */}
         <div className="bento-grid">
           <Card title="Tổng attempts" shadow="green">
@@ -157,18 +167,18 @@ export default function TeacherResultsPage() {
             <div className="text-3xl font-black text-zinc-900">{avgCorrect}</div>
           </Card>
         </div>
-
+        
         {/* Filter */}
         <Card title="Lọc theo đề thi">
           <div className="flex flex-wrap gap-2">
             <button
-              onClick={() => setSelectedExamId("all")}
+              onClick={() => setSelectedExamId('all')}
               className={[
-                "rounded-xl border-2 border-[color:var(--border)] px-4 py-2 text-sm font-bold transition-all",
-                selectedExamId === "all"
-                  ? "bg-[color:var(--primary)] text-white shadow-[3px_3px_0_#1a1a1a]"
-                  : "bg-white text-zinc-700 shadow-[2px_2px_0_#1a1a1a] hover:shadow-[4px_4px_0_#1a1a1a]",
-              ].join(" ")}
+                'rounded-xl border-2 border-(--border) px-4 py-2 text-sm font-bold transition-all',
+                selectedExamId === 'all'
+                  ? 'bg-(--primary) text-white shadow-[3px_3px_0_#1a1a1a]'
+                  : 'bg-white text-zinc-700 shadow-[2px_2px_0_#1a1a1a] hover:shadow-[4px_4px_0_#1a1a1a]',
+              ].join(' ')}
             >
               Tất cả
             </button>
@@ -177,18 +187,18 @@ export default function TeacherResultsPage() {
                 key={e.id}
                 onClick={() => setSelectedExamId(e.id)}
                 className={[
-                  "rounded-xl border-2 border-[color:var(--border)] px-4 py-2 text-sm font-bold transition-all",
+                  'rounded-xl border-2 border-(--border) px-4 py-2 text-sm font-bold transition-all',
                   selectedExamId === e.id
-                    ? "bg-[color:var(--primary)] text-white shadow-[3px_3px_0_#1a1a1a]"
-                    : "bg-white text-zinc-700 shadow-[2px_2px_0_#1a1a1a] hover:shadow-[4px_4px_0_#1a1a1a]",
-                ].join(" ")}
+                    ? 'bg-(--primary) text-white shadow-[3px_3px_0_#1a1a1a]'
+                    : 'bg-white text-zinc-700 shadow-[2px_2px_0_#1a1a1a] hover:shadow-[4px_4px_0_#1a1a1a]',
+                ].join(' ')}
               >
                 {e.title}
               </button>
             ))}
           </div>
         </Card>
-
+        
         {/* Attempts list + detail */}
         <div className="grid gap-4 lg:grid-cols-[1fr_420px]">
           <Card
@@ -202,7 +212,7 @@ export default function TeacherResultsPage() {
                 icon="📊"
                 title="Chưa có dữ liệu"
                 description="Chưa có học viên nào nộp bài trong phòng thi này."
-                action={{ href: "/teacher/exams", label: "Xem đề thi", variant: "secondary" }}
+                action={{ href: '/teacher/exams', label: 'Xem đề thi', variant: 'secondary' }}
               />
             ) : (
               <div className="grid gap-2">
@@ -215,16 +225,16 @@ export default function TeacherResultsPage() {
                       type="button"
                       onClick={() => setSelectedAttemptId(a.id)}
                       className={[
-                        "flex items-center gap-3 rounded-xl border-2 border-[color:var(--border)] px-4 py-3 text-left transition-all",
+                        'flex items-center gap-3 rounded-xl border-2 border-(--border) px-4 py-3 text-left transition-all',
                         isSelected
-                          ? "bg-[color:var(--surface-mint)] shadow-[2px_2px_0_#166534]"
-                          : "bg-white shadow-[3px_3px_0_#1a1a1a] hover:shadow-[5px_5px_0_#1a1a1a]",
-                      ].join(" ")}
+                          ? 'bg-(--primary-surface) shadow-[2px_2px_0_#166534]'
+                          : 'bg-white shadow-[3px_3px_0_#1a1a1a] hover:shadow-[5px_5px_0_#1a1a1a]',
+                      ].join(' ')}
                     >
                       <div className={[
-                        "grid h-9 w-9 shrink-0 place-items-center rounded-xl border-2 border-[color:var(--border)] text-sm font-black",
-                        passed ? "bg-[color:var(--surface-mint)]" : "bg-[#FFD6DD]",
-                      ].join(" ")}>
+                        'grid h-9 w-9 shrink-0 place-items-center rounded-xl border-2 border-(--border) text-sm font-black',
+                        passed ? 'bg-(--surface-mint)' : 'bg-[#FFD6DD]',
+                      ].join(' ')}>
                         {a.correctCount}
                       </div>
                       <div className="min-w-0 flex-1">
@@ -239,13 +249,17 @@ export default function TeacherResultsPage() {
                         <div className="mt-0.5 text-xs text-zinc-500">
                           {a.examTitle} • PIN: {a.roomCode}
                           {a.submittedAt
-                            ? ` • ${new Date(a.submittedAt).toLocaleString("vi-VN")}`
-                            : ""}
+                            ? ` • ${new Date(a.submittedAt).toLocaleString('vi-VN')}`
+                            : ''}
                         </div>
                       </div>
-                      <div className="shrink-0 text-right">
-                        <div className="text-base font-black text-zinc-900">{a.correctCount}</div>
-                        <div className="text-xs text-zinc-500">câu đúng</div>
+                      
+                      <div className="font-black flex items-center gap-2">
+                        <span>{a.correctCount}/{a.answerCount}</span>
+                        -
+                        <span className="text-lg">
+                          {Math.trunc(a.correctCount / a.examQuestionCount * 100)}%
+                        </span>
                       </div>
                     </button>
                   );
@@ -253,17 +267,20 @@ export default function TeacherResultsPage() {
               </div>
             )}
           </Card>
-
+          
           {/* Detail panel */}
-          <Card title="Chi tiết" description={selected ? (selected.username ?? `Student #${selected.studentId}`) : "Chọn một bài thi"}>
+          <Card title="Chi tiết"
+                description={selected ? (selected.username ?? `Student #${selected.studentId}`) : 'Chọn một bài thi'}>
             {selected ? (
               <div className="grid gap-4">
                 <div className="grid grid-cols-2 gap-3">
-                  <div className="rounded-xl border-2 border-[color:var(--border)] bg-[color:var(--surface-warm)] p-3 text-center shadow-[2px_2px_0_#1a1a1a]">
+                  <div
+                    className="rounded-xl border-2 border-(--border) bg-(--surface-warm) p-3 text-center shadow-[2px_2px_0_#1a1a1a]">
                     <div className="text-xs font-bold text-zinc-500">Câu đúng</div>
                     <div className="text-2xl font-black text-zinc-900">{selected.correctCount}</div>
                   </div>
-                  <div className="rounded-xl border-2 border-[color:var(--border)] bg-[color:var(--surface-warm)] p-3 text-center shadow-[2px_2px_0_#1a1a1a]">
+                  <div
+                    className="rounded-xl border-2 border-(--border) bg-(--surface-warm) p-3 text-center shadow-[2px_2px_0_#1a1a1a]">
                     <div className="text-xs font-bold text-zinc-500">Đã trả lời</div>
                     <div className="text-2xl font-black text-zinc-900">{selected.answerCount}</div>
                   </div>
@@ -275,20 +292,22 @@ export default function TeacherResultsPage() {
                   </div>
                   <div className="flex justify-between">
                     <span className="text-zinc-500">Đề thi</span>
-                    <span className="font-bold text-zinc-900 text-right max-w-[60%] truncate">{selected.examTitle}</span>
+                    <span
+                      className="font-bold text-zinc-900 text-right max-w-[60%] truncate">{selected.examTitle}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-zinc-500">Vi phạm</span>
-                    <Badge variant={selected.violationCount > 0 ? "danger" : "default"}>{selected.violationCount}</Badge>
+                    <Badge
+                      variant={selected.violationCount > 0 ? 'danger' : 'default'}>{selected.violationCount}</Badge>
                   </div>
                   {selected.submittedAt && (
                     <div className="flex justify-between">
                       <span className="text-zinc-500">Nộp lúc</span>
-                      <span className="text-xs">{new Date(selected.submittedAt).toLocaleString("vi-VN")}</span>
+                      <span className="text-xs">{new Date(selected.submittedAt).toLocaleString('vi-VN')}</span>
                     </div>
                   )}
                 </div>
-
+                
                 <div className="border-t border-zinc-200 pt-4">
                   <div className="mb-3 flex items-center justify-between">
                     <span className="text-sm font-bold text-zinc-900">Chi tiết vi phạm</span>
@@ -299,17 +318,18 @@ export default function TeacherResultsPage() {
                   {violationsLoading ? (
                     <p className="py-4 text-center text-sm text-zinc-400">Đang tải...</p>
                   ) : violations.length === 0 ? (
-                    <p className="rounded-xl border-2 border-dashed border-zinc-200 bg-zinc-50 px-4 py-6 text-center text-sm text-zinc-500">
+                    <p
+                      className="rounded-xl border-2 border-dashed border-zinc-200 bg-zinc-50 px-4 py-6 text-center text-sm text-zinc-500">
                       {selected.violationCount > 0
-                        ? "Không tải được danh sách vi phạm."
-                        : "Học viên không có vi phạm trong bài thi này."}
+                        ? 'Không tải được danh sách vi phạm.'
+                        : 'Học viên không có vi phạm trong bài thi này.'}
                     </p>
                   ) : (
                     <ul className="grid max-h-72 gap-2 overflow-y-auto">
                       {violations.map((v) => (
                         <li
                           key={v.id}
-                          className="rounded-xl border-2 border-[color:var(--border)] bg-[#FFF5F5] px-3 py-2.5 shadow-[2px_2px_0_#991B1B]"
+                          className="rounded-xl border-2 border-(--border) bg-[#FFF5F5] px-3 py-2.5 shadow-[2px_2px_0_#991B1B]"
                         >
                           <div className="flex items-start gap-2">
                             <span className="text-base leading-none">{violationIcon(v.violationType)}</span>
@@ -321,7 +341,7 @@ export default function TeacherResultsPage() {
                                 <p className="mt-1 text-xs leading-relaxed text-red-800/80">{v.evidenceUrl}</p>
                               ) : null}
                               <div className="mt-1 text-[10px] font-semibold text-red-700/60">
-                                {new Date(v.timestamp).toLocaleString("vi-VN")}
+                                {new Date(v.timestamp).toLocaleString('vi-VN')}
                               </div>
                             </div>
                           </div>
@@ -330,7 +350,7 @@ export default function TeacherResultsPage() {
                     </ul>
                   )}
                 </div>
-
+                
                 <ButtonLink href={`/teacher/rooms/${selected.roomId}`} variant="secondary" className="justify-center">
                   Xem phòng thi
                 </ButtonLink>

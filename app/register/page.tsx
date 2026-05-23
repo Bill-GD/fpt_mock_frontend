@@ -55,7 +55,7 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="flex flex-1 items-center justify-center bg-[color:var(--surface-cream)] py-12">
+    <div className="flex flex-1 items-center justify-center bg-(--surface-cream) py-12">
       <div className="mx-auto w-full max-w-lg px-4 sm:px-6">
         <div className="mb-6 text-center">
           <Badge className="mb-3" variant="success">
@@ -110,9 +110,9 @@ export default function RegisterPage() {
               <div className="text-sm font-bold text-zinc-900">Role</div>
               <div className="grid grid-cols-2 gap-2">
                 <label className={[
-                  "flex cursor-pointer items-center gap-2 rounded-2xl border-2 border-[color:var(--border)] px-3 py-3 text-sm font-bold text-zinc-700 transition",
+                  "flex cursor-pointer items-center gap-2 rounded-2xl border-2 border-(--border) px-3 py-3 text-sm font-bold text-zinc-700 transition",
                   role === "STUDENT"
-                    ? "bg-[color:var(--primary-surface)] shadow-[5px_5px_0_#166534]"
+                    ? "bg-(--primary-surface) shadow-[5px_5px_0_#166534]"
                     : "bg-white shadow-[3px_3px_0_#166534] hover:shadow-[5px_5px_0_#166534]",
                 ].join(" ")}>
                   <input
@@ -125,9 +125,9 @@ export default function RegisterPage() {
                   Student
                 </label>
                 <label className={[
-                  "flex cursor-pointer items-center gap-2 rounded-2xl border-2 border-[color:var(--border)] px-3 py-3 text-sm font-bold text-zinc-700 transition",
+                  "flex cursor-pointer items-center gap-2 rounded-2xl border-2 border-(--border) px-3 py-3 text-sm font-bold text-zinc-700 transition",
                   role === "TEACHER"
-                    ? "bg-[color:var(--accent-surface)] shadow-[5px_5px_0_#D4860A]"
+                    ? "bg-(--accent-surface) shadow-[5px_5px_0_#D4860A]"
                     : "bg-white shadow-[3px_3px_0_#D4860A] hover:shadow-[5px_5px_0_#D4860A]",
                 ].join(" ")}>
                   <input

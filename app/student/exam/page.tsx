@@ -556,7 +556,7 @@ function StudentExamRunnerContent() {
       <AppShell title="Student Dashboard" subtitle="Yêu cầu kết nối Camera" nav={[]}>
         <div className="flex flex-col items-center justify-center gap-6 py-20 max-w-md mx-auto text-center">
           <div
-            className="grid h-20 w-20 place-items-center rounded-2xl border-4 border-[color:var(--border)] bg-[#FFD6DD] text-4xl shadow-[6px_6px_0_#1a1a1a]">
+            className="grid h-20 w-20 place-items-center rounded-2xl border-4 border-(--border) bg-[#FFD6DD] text-4xl shadow-[6px_6px_0_#1a1a1a]">
             📷
           </div>
           <div>
@@ -574,7 +574,7 @@ function StudentExamRunnerContent() {
               setCameraError(null);
               setCameraRetryCount((prev) => prev + 1);
             }}
-            className="w-full rounded-2xl border-2 border-[color:var(--border)] bg-[color:var(--primary)] px-6 py-3 text-sm font-bold text-white shadow-[4px_4px_0_#1a1a1a] transition hover:shadow-[6px_6px_0_#1a1a1a] active:translate-y-0.5"
+            className="w-full rounded-2xl border-2 border-(--border) bg-(--primary) px-6 py-3 text-sm font-bold text-white shadow-[4px_4px_0_#1a1a1a] transition hover:shadow-[6px_6px_0_#1a1a1a] active:translate-y-0.5"
           >
             Thử lại
           </button>
@@ -589,7 +589,7 @@ function StudentExamRunnerContent() {
       <AppShell title="Student Dashboard" subtitle="Chờ phòng thi bắt đầu" nav={[]}>
         <div className="flex flex-col items-center justify-center gap-6 py-20">
           <div
-            className="grid h-20 w-20 animate-pulse place-items-center rounded-2xl border-4 border-[color:var(--border)] bg-[color:var(--surface-mint)] text-4xl shadow-[6px_6px_0_#1a1a1a]">
+            className="grid h-20 w-20 animate-pulse place-items-center rounded-2xl border-4 border-(--border) bg-(--surface-mint) text-4xl shadow-[6px_6px_0_#1a1a1a]">
             ⏳
           </div>
           <div className="text-center">
@@ -603,7 +603,7 @@ function StudentExamRunnerContent() {
             {[0, 1, 2].map((i) => (
               <div
                 key={i}
-                className="h-3 w-3 animate-bounce rounded-full border-2 border-[color:var(--border)] bg-[color:var(--primary)]"
+                className="h-3 w-3 animate-bounce rounded-full border-2 border-(--border) bg-(--primary)"
                 style={{ animationDelay: `${i * 0.15}s` }}
               />
             ))}
@@ -648,13 +648,13 @@ function StudentExamRunnerContent() {
           <div className="flex justify-center gap-3">
             <button
               onClick={() => router.push('/student')}
-              className="rounded-2xl border-2 border-[color:var(--border)] bg-white px-5 py-2.5 text-sm font-bold text-zinc-900 shadow-[4px_4px_0_#1a1a1a] transition hover:shadow-[6px_6px_0_#1a1a1a]"
+              className="rounded-2xl border-2 border-(--border) bg-white px-5 py-2.5 text-sm font-bold text-zinc-900 shadow-[4px_4px_0_#1a1a1a] transition hover:shadow-[6px_6px_0_#1a1a1a]"
             >
               Về dashboard
             </button>
             <button
               onClick={() => router.push('/student/history')}
-              className="rounded-2xl border-2 border-[color:var(--border)] bg-[color:var(--primary)] px-5 py-2.5 text-sm font-bold text-white shadow-[4px_4px_0_#1a1a1a] transition hover:shadow-[6px_6px_0_#1a1a1a]"
+              className="rounded-2xl border-2 border-(--border) bg-(--primary) px-5 py-2.5 text-sm font-bold text-white shadow-[4px_4px_0_#1a1a1a] transition hover:shadow-[6px_6px_0_#1a1a1a]"
             >
               Xem lịch sử
             </button>
@@ -707,7 +707,7 @@ function StudentExamRunnerContent() {
             {/* Camera */}
             <Card title="Camera giám sát">
               <div
-                className="relative aspect-video w-full overflow-hidden rounded-xl border-2 border-[color:var(--border)] bg-zinc-900">
+                className="relative aspect-video w-full overflow-hidden rounded-xl border-2 border-(--border) bg-zinc-900">
                 <video ref={setVideoRef} autoPlay muted playsInline className="h-full w-full object-cover" />
                 {cameraError && (
                   <div
@@ -735,11 +735,11 @@ function StudentExamRunnerContent() {
                       type="button"
                       onClick={() => setCurrentQuestionIndex(idx)}
                       className={[
-                        'grid h-9 w-9 place-items-center rounded-lg border-2 border-[color:var(--border)] text-xs font-bold transition-all',
+                        'grid h-9 w-9 place-items-center rounded-lg border-2 border-(--border) text-xs font-bold transition-all',
                         isCurrent
-                          ? 'bg-[color:var(--primary)] text-white shadow-[3px_3px_0_#1a1a1a]'
+                          ? 'bg-(--primary) text-white shadow-[3px_3px_0_#1a1a1a]'
                           : isAnswered
-                            ? 'bg-[color:var(--surface-mint)] text-emerald-700 shadow-[2px_2px_0_#166534]'
+                            ? 'bg-(--surface-mint) text-emerald-700 shadow-[2px_2px_0_#166534]'
                             : 'bg-white text-zinc-600 shadow-[2px_2px_0_#1a1a1a] hover:shadow-[3px_3px_0_#1a1a1a]',
                       ].join(' ')}
                     >
@@ -759,7 +759,7 @@ function StudentExamRunnerContent() {
             >
               <div className="grid gap-4">
                 <div
-                  className="rounded-xl bg-[color:var(--surface-warm)] px-4 py-3 text-sm font-bold text-zinc-900 leading-relaxed border-2 border-[color:var(--border)]">
+                  className="rounded-xl bg-(--surface-warm) px-4 py-3 text-sm font-bold text-zinc-900 leading-relaxed border-2 border-(--border)">
                   {currentQuestion.content}
                 </div>
                 
@@ -775,15 +775,15 @@ function StudentExamRunnerContent() {
                         className={[
                           'flex items-center gap-3 rounded-2xl border-2 px-4 py-3 text-left text-sm font-semibold transition-all',
                           isSelected
-                            ? 'border-[color:var(--primary)] bg-[color:var(--primary-surface)] text-emerald-800 shadow-[4px_4px_0_#166534]'
-                            : 'border-[color:var(--border)] bg-white text-zinc-700 shadow-[3px_3px_0_#1a1a1a] hover:shadow-[5px_5px_0_#1a1a1a]',
+                            ? 'border-(--primary) bg-(--primary-surface) text-emerald-800 shadow-[4px_4px_0_#166534]'
+                            : 'border-(--border) bg-white text-zinc-700 shadow-[3px_3px_0_#1a1a1a] hover:shadow-[5px_5px_0_#1a1a1a]',
                         ].join(' ')}
                       >
                         <span className={[
-                          'grid h-8 w-8 shrink-0 place-items-center rounded-full border-2 border-[color:var(--border)] text-xs font-black',
+                          'grid h-8 w-8 shrink-0 place-items-center rounded-full border-2 border-(--border) text-xs font-black',
                           isSelected
-                            ? 'bg-[color:var(--primary)] text-white'
-                            : 'bg-[color:var(--surface-warm)] text-zinc-800',
+                            ? 'bg-(--primary) text-white'
+                            : 'bg-(--surface-warm) text-zinc-800',
                         ].join(' ')}>
                           {label}
                         </span>

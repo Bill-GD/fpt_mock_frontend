@@ -53,33 +53,33 @@ body {
 
 /* Neo-brutalism cards — white bg, thick border, colored shadow */
 .brutal-card {
-  @apply border-2 border-[color:var(--border)] bg-white rounded-2xl;
+  @apply border-2 border-(--border) bg-white rounded-2xl;
   box-shadow: var(--shadow-dark);
 }
 
 .brutal-card-green {
-  @apply border-2 border-[color:var(--border)] bg-white rounded-2xl;
+  @apply border-2 border-(--border) bg-white rounded-2xl;
   box-shadow: var(--shadow-green);
 }
 
 .brutal-card-orange {
-  @apply border-2 border-[color:var(--border)] bg-white rounded-2xl;
+  @apply border-2 border-(--border) bg-white rounded-2xl;
   box-shadow: var(--shadow-orange);
 }
 
 .brutal-card-red {
-  @apply border-2 border-[color:var(--border)] bg-white rounded-2xl;
+  @apply border-2 border-(--border) bg-white rounded-2xl;
   box-shadow: var(--shadow-red);
 }
 
 /* Backward compat aliases */
 .glass-panel {
-  @apply border-2 border-[color:var(--border)] bg-white rounded-2xl;
+  @apply border-2 border-(--border) bg-white rounded-2xl;
   box-shadow: var(--shadow-dark);
 }
 
 .glass-panel-soft {
-  @apply border-2 border-[color:var(--border)] bg-white rounded-xl;
+  @apply border-2 border-(--border) bg-white rounded-xl;
   box-shadow: var(--shadow-dark-sm);
 }
 
@@ -92,6 +92,6 @@ body {
 }
 
 .section-head {
-  @apply border-2 border-[color:var(--border)] bg-[color:var(--surface-cream)] rounded-2xl px-4 py-4 sm:px-5;
+  @apply border-2 border-(--border) bg-(--surface-cream) rounded-2xl px-4 py-4 sm:px-5;
   box-shadow: var(--shadow-dark);
 }

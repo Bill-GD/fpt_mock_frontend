@@ -81,7 +81,7 @@ export default function StudentHistoryPage() {
                   return (
                     <div
                       key={a.attemptId}
-                      className="flex flex-col gap-3 rounded-2xl border-2 border-[color:var(--border)] bg-white p-4 shadow-[4px_4px_0_#1a1a1a] sm:flex-row sm:items-center sm:justify-between"
+                      className="flex flex-col gap-3 rounded-2xl border-2 border-(--border) bg-white p-4 shadow-[4px_4px_0_#1a1a1a] sm:flex-row sm:items-center sm:justify-between"
                     >
                       <div className="min-w-0 flex-1">
                         <div className="truncate text-sm font-bold text-zinc-900">{a.examTitle}</div>
@@ -116,7 +116,7 @@ export default function StudentHistoryPage() {
                 >
                   Trước
                 </Button>
-                <span className="rounded-full border-2 border-[color:var(--border)] bg-white px-4 py-2 text-sm font-bold text-zinc-900 shadow-[2px_2px_0_#1a1a1a]">
+                <span className="rounded-full border-2 border-(--border) bg-white px-4 py-2 text-sm font-bold text-zinc-900 shadow-[2px_2px_0_#1a1a1a]">
                   {page + 1} / {totalPages}
                 </span>
                 <Button

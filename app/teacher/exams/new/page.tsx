@@ -261,7 +261,7 @@ export default function TeacherCreateExamPage() {
           <div className="mt-3 grid gap-1.5 text-sm">
             <span className="font-bold text-zinc-900">Mô tả</span>
             <textarea
-              className="min-h-24 w-full rounded-xl border-2 border-[color:var(--border)] bg-white px-3 py-2 text-sm text-zinc-900 shadow-[3px_3px_0_#1a1a1a] outline-none transition focus:shadow-[1px_1px_0_#1a1a1a] focus:ring-2 focus:ring-[color:var(--primary)]/20"
+              className="min-h-24 w-full rounded-xl border-2 border-(--border) bg-white px-3 py-2 text-sm text-zinc-900 shadow-[3px_3px_0_#1a1a1a] outline-none transition focus:shadow-[1px_1px_0_#1a1a1a] focus:ring-2 focus:ring-(--primary)/20"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               placeholder="Mô tả ngắn về đề thi..."
@@ -278,9 +278,9 @@ export default function TeacherCreateExamPage() {
                 type="button"
                 onClick={() => setTab(item)}
                 className={[
-                  "rounded-xl border-2 border-[color:var(--border)] px-4 py-2.5 text-sm font-bold transition-all",
+                  "rounded-xl border-2 border-(--border) px-4 py-2.5 text-sm font-bold transition-all",
                   tab === item
-                    ? "bg-[color:var(--primary)] text-white shadow-[4px_4px_0_#1a1a1a]"
+                    ? "bg-(--primary) text-white shadow-[4px_4px_0_#1a1a1a]"
                     : "bg-white text-zinc-700 shadow-[3px_3px_0_#1a1a1a] hover:shadow-[5px_5px_0_#1a1a1a]",
                 ].join(" ")}
               >
@@ -300,7 +300,7 @@ export default function TeacherCreateExamPage() {
               <div className="grid gap-2">
                 <div className="text-xs font-bold text-zinc-700 uppercase">CSV (client-side parse)</div>
                 <input type="file" accept=".csv,text/csv" onChange={onCsvSelected}
-                  className="block w-full rounded-xl border-2 border-[color:var(--border)] bg-white px-3 py-2 text-sm text-zinc-700 shadow-[3px_3px_0_#1a1a1a] file:mr-3 file:rounded-lg file:border-2 file:border-[color:var(--border)] file:bg-[color:var(--surface-warm)] file:px-3 file:py-1.5 file:font-bold file:text-zinc-700"
+                  className="block w-full rounded-xl border-2 border-(--border) bg-white px-3 py-2 text-sm text-zinc-700 shadow-[3px_3px_0_#1a1a1a] file:mr-3 file:rounded-lg file:border-2 file:border-(--border) file:bg-(--surface-warm) file:px-3 file:py-1.5 file:font-bold file:text-zinc-700"
                 />
                 {csvFileName && <div className="text-xs text-zinc-500">Đã chọn: {csvFileName}</div>}
                 {csvError && <div className="rounded-xl border-2 border-red-500 bg-[#FFD6DD] px-3 py-2 text-sm font-semibold text-red-700">{csvError}</div>}
@@ -335,7 +335,7 @@ export default function TeacherCreateExamPage() {
                     <div className="grid gap-1.5 text-sm">
                       <span className="font-bold text-zinc-900">Nội dung câu hỏi</span>
                       <textarea
-                        className="min-h-20 w-full rounded-xl border-2 border-[color:var(--border)] bg-white px-3 py-2 text-sm text-zinc-900 shadow-[3px_3px_0_#1a1a1a] outline-none transition focus:shadow-[1px_1px_0_#1a1a1a] focus:ring-2 focus:ring-[color:var(--primary)]/20"
+                        className="min-h-20 w-full rounded-xl border-2 border-(--border) bg-white px-3 py-2 text-sm text-zinc-900 shadow-[3px_3px_0_#1a1a1a] outline-none transition focus:shadow-[1px_1px_0_#1a1a1a] focus:ring-2 focus:ring-(--primary)/20"
                         value={q.content}
                         onChange={(e) => updateQuestion(q.id, (old) => ({ ...old, content: e.target.value }))}
                         placeholder="Nhập nội dung câu hỏi"
@@ -356,7 +356,7 @@ export default function TeacherCreateExamPage() {
                       <select
                         value={q.correct}
                         onChange={(e) => updateQuestion(q.id, (old) => ({ ...old, correct: e.target.value as OptionId }))}
-                        className="h-11 rounded-xl border-2 border-[color:var(--border)] bg-white px-3 text-sm text-zinc-900 shadow-[3px_3px_0_#1a1a1a] outline-none focus:shadow-[1px_1px_0_#1a1a1a] focus:ring-2 focus:ring-[color:var(--primary)]/20 transition-all"
+                        className="h-11 rounded-xl border-2 border-(--border) bg-white px-3 text-sm text-zinc-900 shadow-[3px_3px_0_#1a1a1a] outline-none focus:shadow-[1px_1px_0_#1a1a1a] focus:ring-2 focus:ring-(--primary)/20 transition-all"
                       >
                         {OPTION_IDS.map((option) => (
                           <option key={option} value={option}>{option}</option>
@@ -382,7 +382,7 @@ export default function TeacherCreateExamPage() {
                 <label className="grid gap-1.5 text-sm">
                   <span className="font-bold text-zinc-900">Độ khó</span>
                   <select
-                    className="h-11 rounded-xl border-2 border-[color:var(--border)] bg-white px-3 text-sm text-zinc-900 shadow-[3px_3px_0_#1a1a1a] outline-none focus:ring-2 focus:ring-[color:var(--primary)]/20 transition-all"
+                    className="h-11 rounded-xl border-2 border-(--border) bg-white px-3 text-sm text-zinc-900 shadow-[3px_3px_0_#1a1a1a] outline-none focus:ring-2 focus:ring-(--primary)/20 transition-all"
                     value={aiDifficulty}
                     onChange={(e) => setAiDifficulty(e.target.value)}
                   >

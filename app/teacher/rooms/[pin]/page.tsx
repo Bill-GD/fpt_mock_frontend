@@ -17,7 +17,7 @@ import { connectSocket, leaveQuizSocketRoom, roomIdentification, type Socket } f
 const TEACHER_NAV = [
   { href: "/teacher", label: "Tổng quan" },
   { href: "/teacher/exams", label: "Danh sách đề" },
-  { href: "/teacher/exams/new", label: "Tạo đề mới", badge: "Excel/Manual/AI" },
+  { href: "/teacher/exams/new", label: "Tạo đề mới", badge: "CSV/Manual/AI" },
   { href: "/teacher/results", label: "Kết quả & Vi phạm" },
 ];
 
@@ -433,7 +433,7 @@ export default function TeacherRoomDetailPage({
                     <div className="text-2xl font-black text-zinc-900">{selected.correctCount}</div>
                   </div>
                   <div className="rounded-xl border-2 border-[color:var(--border)] bg-[color:var(--surface-warm)] p-3 text-center shadow-[2px_2px_0_#1a1a1a]">
-                    <div className="text-xs font-bold text-zinc-500">Tiến độ</div>
+                    <div className="text-xs font-bold text-zinc-500">Đã trả lời</div>
                     <div className="text-2xl font-black text-zinc-900">{selected.answerCount}/{room.exam.questionCount}</div>
                   </div>
                 </div>

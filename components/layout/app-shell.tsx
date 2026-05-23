@@ -31,7 +31,7 @@ function SidebarContent({
           SQ
         </div>
         <div className="min-w-0 leading-tight">
-          <div className="truncate text-sm font-bold text-white">SmartQuiz AI</div>
+          <div className="truncate text-sm font-bold text-white">SmartQuiz</div>
           <div className="truncate text-xs text-white/50">Hệ thống thi trực tuyến</div>
         </div>
       </Link>

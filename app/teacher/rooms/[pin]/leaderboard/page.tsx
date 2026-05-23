@@ -699,7 +699,7 @@ export default function LeaderboardPage({
                     <div className="flex justify-between items-end mb-2">
                       <div className="flex items-center gap-1 text-[11px] font-black text-emerald-700 uppercase tracking-wider">
                         <BarChart2 size={14} className="text-emerald-600" />
-                        <span>Tiến độ câu hỏi</span>
+                        <span>Đã trả lời</span>
                       </div>
                       <div className="text-sm font-black text-emerald-950">
                         {selectedStudent.answeredCount} / {selectedStudent.totalQuestions}
@@ -721,3 +721,4 @@ export default function LeaderboardPage({
     </div>
   );
 }
+

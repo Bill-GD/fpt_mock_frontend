@@ -20,7 +20,7 @@ export function Card({ className, title, description, right, shadow = "dark", ch
   return (
     <section
       className={[
-        "min-w-0 rounded-2xl border-2 border-[color:var(--border)] bg-white",
+        "min-w-0 rounded-2xl border-2 border-(--border) bg-white",
         shadowMap[shadow],
         className,
       ]
@@ -29,7 +29,7 @@ export function Card({ className, title, description, right, shadow = "dark", ch
       {...props}
     >
       {title || description || right ? (
-        <header className="flex items-start justify-between gap-4 border-b-2 border-[color:var(--border)] px-5 py-4">
+        <header className="flex items-start justify-between gap-4 border-b-2 border-(--border) px-5 py-4">
           <div className="grid gap-0.5">
             {title ? <h2 className="text-base font-bold text-zinc-900">{title}</h2> : null}
             {description ? <p className="text-sm text-zinc-600">{description}</p> : null}

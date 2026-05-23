@@ -39,14 +39,14 @@ export function Modal({ open, onClose, title, description, children, size = "lg"
       {/* Panel */}
       <div
         className={[
-          "relative w-full rounded-2xl border-2 border-[color:var(--border)] bg-white shadow-[6px_6px_0_#1a1a1a]",
+          "relative w-full rounded-2xl border-2 border-(--border) bg-white shadow-[6px_6px_0_#1a1a1a]",
           sizeClass[size],
         ].join(" ")}
         role="dialog"
         aria-modal
       >
         {title || description ? (
-          <div className="border-b-2 border-[color:var(--border)] px-5 py-4">
+          <div className="border-b-2 border-(--border) px-5 py-4">
             <div className="flex items-start justify-between gap-4">
               <div>
                 {title ? <h2 className="text-lg font-bold text-zinc-900">{title}</h2> : null}
@@ -55,7 +55,7 @@ export function Modal({ open, onClose, title, description, children, size = "lg"
               <button
                 type="button"
                 onClick={onClose}
-                className="grid h-8 w-8 shrink-0 place-items-center rounded-full border-2 border-[color:var(--border)] bg-white text-zinc-500 shadow-[2px_2px_0_#1a1a1a] transition hover:bg-[color:var(--danger-surface)] hover:text-red-600 hover:shadow-[3px_3px_0_#DC2626]"
+                className="grid h-8 w-8 shrink-0 place-items-center rounded-full border-2 border-(--border) bg-white text-zinc-500 shadow-[2px_2px_0_#1a1a1a] transition hover:bg-(--danger-surface) hover:text-red-600 hover:shadow-[3px_3px_0_#DC2626]"
                 aria-label="Close"
               >
                 ✕

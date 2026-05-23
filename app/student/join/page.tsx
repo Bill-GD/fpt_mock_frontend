@@ -127,14 +127,14 @@ export default function StudentJoinPage() {
             </div>
 
             {searching ? (
-              <div className="rounded-xl border-2 border-[color:var(--border)] bg-white p-4 shadow-[3px_3px_0_#1a1a1a]">
+              <div className="rounded-xl border-2 border-(--border) bg-white p-4 shadow-[3px_3px_0_#1a1a1a]">
                 <div className="grid gap-2">
                   <Skeleton className="h-4 w-48" />
                   <Skeleton className="h-3 w-32" />
                 </div>
               </div>
             ) : foundRoom && statusInfo ? (
-              <div className="rounded-xl border-2 border-[color:var(--border)] bg-white p-4 shadow-[3px_3px_0_#1a1a1a]">
+              <div className="rounded-xl border-2 border-(--border) bg-white p-4 shadow-[3px_3px_0_#1a1a1a]">
                 <div className="flex items-center justify-between gap-3">
                   <div className="min-w-0">
                     <div className="flex items-center gap-2">
@@ -148,7 +148,7 @@ export default function StudentJoinPage() {
                   {statusInfo.canJoin ? <span className="text-xl">✅</span> : <span className="text-xl">⏳</span>}
                 </div>
                 {!statusInfo.canJoin ? (
-                  <div className="mt-3 rounded-lg bg-[color:var(--accent-surface)] px-3 py-2 text-xs font-semibold text-amber-800">
+                  <div className="mt-3 rounded-lg bg-(--accent-surface) px-3 py-2 text-xs font-semibold text-amber-800">
                     {foundRoom.status === "ACTIVE"
                       ? "Phòng đã bắt đầu. Bạn cần vào phòng trước khi giáo viên bấm \"Bắt đầu thi\"."
                       : foundRoom.status === "FINISHED"
@@ -156,7 +156,7 @@ export default function StudentJoinPage() {
                         : "Phòng thi chưa được mở. Vui lòng chờ giáo viên."}
                   </div>
                 ) : (
-                  <div className="mt-3 rounded-lg bg-[color:var(--primary-surface)] px-3 py-2 text-xs font-semibold text-emerald-800">
+                  <div className="mt-3 rounded-lg bg-(--primary-surface) px-3 py-2 text-xs font-semibold text-emerald-800">
                     Phòng đang chờ! Bấm <strong>Vào thi</strong> để vào phòng, sau đó chờ giáo viên bắt đầu.
                   </div>
                 )}
@@ -178,7 +178,7 @@ export default function StudentJoinPage() {
               "Bật camera khi được yêu cầu (fallback nếu từ chối)",
             ].map((item) => (
               <li key={item} className="flex items-center gap-2">
-                <span className="inline-block h-2 w-2 rounded-full border-2 border-[color:var(--border)] bg-[#FFD6DD]" />
+                <span className="inline-block h-2 w-2 rounded-full border-2 border-(--border) bg-[#FFD6DD]" />
                 {item}
               </li>
             ))}

@@ -23,13 +23,13 @@ const ToastContext = React.createContext<ToastContextValue | null>(null);
 function variantClass(variant: ToastVariant) {
   switch (variant) {
     case "success":
-      return "border-[color:var(--border)] bg-[color:var(--primary-surface)] text-emerald-900 shadow-[4px_4px_0_#166534]";
+      return "border-(--border) bg-(--primary-surface) text-emerald-900 shadow-[4px_4px_0_#166534]";
     case "warning":
-      return "border-[color:var(--border)] bg-[color:var(--accent-surface)] text-amber-950 shadow-[4px_4px_0_#D4860A]";
+      return "border-(--border) bg-(--accent-surface) text-amber-950 shadow-[4px_4px_0_#D4860A]";
     case "danger":
-      return "border-[color:var(--border)] bg-[color:var(--danger-surface)] text-red-900 shadow-[4px_4px_0_#DC2626]";
+      return "border-(--border) bg-(--danger-surface) text-red-900 shadow-[4px_4px_0_#DC2626]";
     default:
-      return "border-[color:var(--border)] bg-white text-zinc-900 shadow-[4px_4px_0_#1a1a1a]";
+      return "border-(--border) bg-white text-zinc-900 shadow-[4px_4px_0_#1a1a1a]";
   }
 }
 

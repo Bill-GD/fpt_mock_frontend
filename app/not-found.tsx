@@ -3,7 +3,7 @@ import { Card } from "@/components/ui/card";
 
 export default function NotFound() {
   return (
-    <div className="flex flex-1 items-center justify-center bg-[color:var(--surface-cream)] py-16">
+    <div className="flex flex-1 items-center justify-center bg-(--surface-cream) py-16">
       <div className="container-app max-w-md text-center">
         <div className="mb-6 text-6xl">🔍</div>
         <h1 className="text-5xl font-black text-zinc-900">404</h1>

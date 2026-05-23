@@ -84,11 +84,11 @@ export default function StudentDashboardPage() {
                 return (
                   <div
                     key={a.attemptId}
-                    className="flex items-center gap-3 rounded-2xl border-2 border-[color:var(--border)] bg-white p-3 shadow-[3px_3px_0_#1a1a1a]"
+                    className="flex items-center gap-3 rounded-2xl border-2 border-(--border) bg-white p-3 shadow-[3px_3px_0_#1a1a1a]"
                   >
                     <div className={[
-                      "grid h-10 w-10 shrink-0 place-items-center rounded-xl border-2 border-[color:var(--border)] text-lg font-black",
-                      passed ? "bg-[color:var(--surface-mint)]" : "bg-[#FFD6DD]",
+                      "grid h-10 w-10 shrink-0 place-items-center rounded-xl border-2 border-(--border) text-lg font-black",
+                      passed ? "bg-(--surface-mint)" : "bg-[#FFD6DD]",
                     ].join(" ")}>
                       {passed ? "✓" : "✗"}
                     </div>
@@ -121,7 +121,7 @@ export default function StudentDashboardPage() {
               "Camera phải bật và hiển thị khuôn mặt rõ ràng",
             ].map((item) => (
               <li key={item} className="flex items-center gap-2">
-                <span className="inline-block h-2 w-2 rounded-full border-2 border-[color:var(--border)] bg-[color:var(--primary)]" />
+                <span className="inline-block h-2 w-2 rounded-full border-2 border-(--border) bg-(--primary)" />
                 {item}
               </li>
             ))}

@@ -48,10 +48,11 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="flex flex-1 items-center justify-center bg-[color:var(--surface-cream)] py-12">
+    <div className="flex flex-1 items-center justify-center bg-(--surface-cream) py-12">
       <div className="mx-auto w-full max-w-lg px-4 sm:px-6">
         <div className="mb-6 text-center">
-          <div className="mx-auto inline-block rounded-full border-2 border-[color:var(--border)] bg-[color:var(--primary)] px-5 py-2 text-sm font-bold text-white shadow-[3px_3px_0_#1a1a1a]">
+          <div
+            className="mx-auto inline-block rounded-full border-2 border-(--border) bg-(--primary) px-5 py-2 text-sm font-bold text-white shadow-[3px_3px_0_#1a1a1a]">
             SmartQuiz
           </div>
           <h1 className="mt-5 text-3xl font-black text-zinc-900">Đăng nhập</h1>
@@ -82,7 +83,9 @@ export default function LoginPage() {
             />
 
             {error && (
-              <div className="rounded-xl border-2 border-red-500 bg-[#FFD6DD] px-3 py-2 text-sm font-semibold text-red-700">
+              <div
+                className="rounded-xl border-2 border-red-500 bg-[#FFD6DD] px-3 py-2 text-sm font-semibold text-red-700"
+              >
                 {error}
               </div>
             )}

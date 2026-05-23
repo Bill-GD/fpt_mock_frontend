@@ -4,7 +4,7 @@ import { Card } from "@/components/ui/card";
 
 export default function VerifyPage() {
   return (
-    <div className="flex flex-1 items-center justify-center bg-[color:var(--surface-cream)] py-12">
+    <div className="flex flex-1 items-center justify-center bg-(--surface-cream) py-12">
       <div className="container-app max-w-lg">
         <Card
           title="Xác thực email"

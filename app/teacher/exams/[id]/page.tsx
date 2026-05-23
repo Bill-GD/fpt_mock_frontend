@@ -164,7 +164,7 @@ export default function TeacherExamDetailPage({
                 return (
                   <div
                     key={r.id}
-                    className="flex flex-col gap-3 rounded-xl border-2 border-[color:var(--border)] bg-white px-4 py-3 shadow-[2px_2px_0_#1a1a1a] sm:flex-row sm:items-center sm:justify-between"
+                    className="flex flex-col gap-3 rounded-xl border-2 border-(--border) bg-white px-4 py-3 shadow-[2px_2px_0_#1a1a1a] sm:flex-row sm:items-center sm:justify-between"
                   >
                     <div className="min-w-0">
                       <div className="flex flex-wrap items-center gap-2">
@@ -211,10 +211,10 @@ export default function TeacherExamDetailPage({
               {exam.questions.map((q, idx) => (
                 <div
                   key={q.id}
-                  className="rounded-xl border-2 border-[color:var(--border)] bg-white p-4 shadow-[3px_3px_0_#1a1a1a]"
+                  className="rounded-xl border-2 border-(--border) bg-white p-4 shadow-[3px_3px_0_#1a1a1a]"
                 >
                   <div className="flex items-start gap-3">
-                    <span className="grid h-7 w-7 shrink-0 place-items-center rounded-lg border-2 border-[color:var(--border)] bg-[color:var(--surface-warm)] text-xs font-bold text-zinc-900 shadow-[2px_2px_0_#1a1a1a]">
+                    <span className="grid h-7 w-7 shrink-0 place-items-center rounded-lg border-2 border-(--border) bg-(--surface-warm) text-xs font-bold text-zinc-900 shadow-[2px_2px_0_#1a1a1a]">
                       {idx + 1}
                     </span>
                     <div className="min-w-0 flex-1">
@@ -226,7 +226,7 @@ export default function TeacherExamDetailPage({
                             className={[
                               "flex items-center gap-2 rounded-lg px-3 py-1.5 text-xs",
                               opt.isCorrect
-                                ? "border-2 border-emerald-500 bg-[color:var(--surface-mint)] font-bold text-emerald-800"
+                                ? "border-2 border-emerald-500 bg-(--surface-mint) font-bold text-emerald-800"
                                 : "border border-zinc-200 text-zinc-600",
                             ].join(" ")}
                           >

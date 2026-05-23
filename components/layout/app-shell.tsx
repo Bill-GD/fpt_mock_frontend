@@ -1,9 +1,10 @@
-"use client";
+'use client';
 
-import Link from "next/link";
-import { useRouter } from "next/navigation";
-import * as React from "react";
-import { useAuth } from "@/lib/auth-context";
+import { useAuth } from '@/lib/auth-context';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import * as React from 'react';
+import { ReactNode, useState } from 'react';
 
 export type NavItem = {
   href: string;
@@ -23,9 +24,10 @@ function SidebarContent({
       {/* Brand logo */}
       <Link
         href="/"
-        className="flex h-16 items-center gap-3 border-b-2 border-[color:var(--border)] px-5 transition-opacity hover:opacity-80"
+        className="flex h-16 items-center gap-3 border-b-2 border-(--border) px-5 transition-opacity hover:opacity-80"
       >
-        <div className="grid h-9 w-9 shrink-0 place-items-center rounded-full border-2 border-white bg-[color:var(--primary)] text-white font-bold text-sm shadow-[2px_2px_0_#1a1a1a]">
+        <div
+          className="grid h-9 w-9 shrink-0 place-items-center rounded-full border-2 border-white bg-(--primary) text-white font-bold text-sm shadow-[2px_2px_0_#1a1a1a]">
           SQ
         </div>
         <div className="min-w-0 leading-tight">
@@ -33,7 +35,7 @@ function SidebarContent({
           <div className="truncate text-xs text-white/50">Hệ thống thi trực tuyến</div>
         </div>
       </Link>
-
+      
       <nav className="flex-1 overflow-y-auto px-3 py-4">
         <ul className="grid gap-1">
           {nav.map((item) => (
@@ -45,7 +47,8 @@ function SidebarContent({
               >
                 <span>{item.label}</span>
                 {item.badge ? (
-                  <span className="rounded-full border-2 border-white/30 bg-white/10 px-2 py-0.5 text-xs font-bold text-white/90">
+                  <span
+                    className="rounded-full border-2 border-white/30 bg-white/10 px-2 py-0.5 text-xs font-bold text-white/90">
                     {item.badge}
                   </span>
                 ) : null}
@@ -67,24 +70,24 @@ export function AppShell({
   title: string;
   subtitle?: string;
   nav: NavItem[];
-  children: React.ReactNode;
+  children: ReactNode;
 }) {
-  const [mobileOpen, setMobileOpen] = React.useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
   const { user, loading: authLoading, logout } = useAuth();
   const router = useRouter();
-
+  
   const handleLogout = async () => {
     await logout();
-    router.push("/login");
+    router.push('/login');
   };
-
+  
   return (
     <div className="flex min-h-full flex-1">
       {/* Desktop sidebar */}
-      <aside className="hidden w-72 shrink-0 border-r-2 border-[color:var(--border)] bg-header-bg lg:flex lg:flex-col">
+      <aside className="hidden w-72 shrink-0 border-r-2 border-(--border) bg-header-bg lg:flex lg:flex-col">
         <SidebarContent nav={nav} />
       </aside>
-
+      
       {/* Mobile sidebar overlay */}
       {mobileOpen ? (
         <div className="fixed inset-0 z-40 lg:hidden">
@@ -95,7 +98,8 @@ export function AppShell({
             aria-hidden
           />
           {/* Slide-over panel */}
-          <aside className="relative flex h-full w-72 max-w-[80vw] flex-col border-r-2 border-[color:var(--border)] bg-header-bg shadow-[6px_0_0_#1a1a1a]">
+          <aside
+            className="relative flex h-full w-72 max-w-[80vw] flex-col border-r-2 border-(--border) bg-header-bg shadow-[6px_0_0_#1a1a1a]">
             {/* Close button */}
             <button
               type="button"
@@ -112,10 +116,10 @@ export function AppShell({
           </aside>
         </div>
       ) : null}
-
+      
       <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
         {/* Header bar */}
-        <header className="sticky top-0 z-10 border-b-2 border-[color:var(--border)] bg-header-bg">
+        <header className="sticky top-0 z-10 border-b-2 border-(--border) bg-header-bg">
           <div className="container-app flex h-16 items-center justify-between gap-3">
             {/* Hamburger – mobile only */}
             <button
@@ -124,13 +128,14 @@ export function AppShell({
               className="grid h-10 w-10 shrink-0 place-items-center rounded-full border-2 border-white/30 text-white transition hover:bg-white/10 lg:hidden"
               aria-label="Mở menu"
             >
-              <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="2.5"
+                   strokeLinecap="round">
                 <line x1="3" y1="5" x2="17" y2="5" />
                 <line x1="3" y1="10" x2="17" y2="10" />
                 <line x1="3" y1="15" x2="17" y2="15" />
               </svg>
             </button>
-
+            
             {/* Page title — mobile only (sidebar already shows brand on desktop) */}
             <div className="min-w-0 flex-1 lg:hidden">
               <div className="truncate text-sm font-bold text-white">{title}</div>
@@ -141,7 +146,7 @@ export function AppShell({
               <div className="truncate text-sm font-bold text-white">{title}</div>
               {subtitle ? <div className="truncate text-xs text-white/80">{subtitle}</div> : null}
             </div>
-
+            
             <div className="flex shrink-0 items-center gap-2">
               <Link
                 href="/"
@@ -153,7 +158,8 @@ export function AppShell({
                 <span className="h-9 w-24 animate-pulse rounded-full bg-white/10" aria-hidden />
               ) : user ? (
                 <>
-                  <span className="hidden max-w-[140px] truncate rounded-full border-2 border-white/20 bg-white/10 px-3 py-2 text-sm font-bold text-white sm:inline-block">
+                  <span
+                    className="hidden max-w-35 truncate rounded-full border-2 border-white/20 bg-white/10 px-3 py-2 text-sm font-bold text-white sm:inline-block">
                     {user.username}
                   </span>
                   <button
@@ -174,7 +180,7 @@ export function AppShell({
                   </Link>
                   <Link
                     href="/login"
-                    className="rounded-full border-2 border-white/30 bg-[color:var(--primary)] px-4 py-2 text-sm font-bold text-white shadow-[3px_3px_0_#1a1a1a] transition-all hover:shadow-[5px_5px_0_#1a1a1a]"
+                    className="rounded-full border-2 border-white/30 bg-(--primary) px-4 py-2 text-sm font-bold text-white shadow-[3px_3px_0_#1a1a1a] transition-all hover:shadow-[5px_5px_0_#1a1a1a]"
                   >
                     Đăng nhập
                   </Link>
@@ -183,7 +189,7 @@ export function AppShell({
             </div>
           </div>
         </header>
-
+        
         <main className="container-app min-w-0 w-full flex-1 py-6 overflow-x-hidden">{children}</main>
       </div>
     </div>

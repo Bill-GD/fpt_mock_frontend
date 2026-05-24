@@ -6,16 +6,8 @@ import { ButtonLink } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { EmptyState } from '@/components/ui/empty-state';
 import { SkeletonGrid } from '@/components/ui/skeleton';
-import {
-  type AttemptSummary,
-  type Exam,
-  getRoomDetail,
-  getRoomsByExam,
-  getViolationLabel,
-  getViolationsByAttempt,
-  listExams,
-  type ViolationDetail,
-} from '@/lib/api';
+import { getRoomDetail, getRoomsByExam, getViolationsByAttempt, listExams } from '@/lib/api/http';
+import { AttemptSummary, Exam, getViolationLabel, UserRole, ViolationDetail } from '@/lib/api/types';
 import { useAuth } from '@/lib/auth-context';
 import { deferStateUpdate } from '@/lib/utils';
 import { useRouter } from 'next/navigation';
@@ -68,7 +60,7 @@ export default function TeacherResultsPage() {
       router.push('/login');
       return;
     }
-    if (user.role !== 'teacher') {
+    if (user.role !== UserRole.teacher) {
       router.push('/student');
       return;
     }

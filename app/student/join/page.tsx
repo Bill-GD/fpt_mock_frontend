@@ -6,7 +6,8 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Skeleton } from '@/components/ui/skeleton';
-import { getRoomPublicInfo, type RoomPublicInfo } from '@/lib/api';
+import { getRoomPublicInfo } from '@/lib/api/http';
+import { RoomPublicInfo, RoomStatus, UserRole } from '@/lib/api/types';
 import { useAuth } from '@/lib/auth-context';
 import { deferStateUpdate } from '@/lib/utils';
 import { useRouter } from 'next/navigation';
@@ -26,7 +27,7 @@ export default function StudentJoinPage() {
       router.push('/login');
       return;
     }
-    if (user.role !== 'student') {
+    if (user.role !== UserRole.student) {
       router.push('/teacher');
       return;
     }
@@ -66,12 +67,12 @@ export default function StudentJoinPage() {
       return;
     }
     
-    if (foundRoom.status === 'FINISHED') {
+    if (foundRoom.status === RoomStatus.finished) {
       setError('Phòng thi này đã kết thúc.');
       return;
     }
     
-    if (foundRoom.status === 'INACTIVE') {
+    if (foundRoom.status === RoomStatus.inactive) {
       setError('Phòng thi chưa được mở. Vui lòng chờ giáo viên.');
       return;
     }
@@ -82,11 +83,11 @@ export default function StudentJoinPage() {
   };
   
   const statusInfo = foundRoom
-    ? foundRoom.status === 'WAITING'
+    ? foundRoom.status === RoomStatus.waiting
       ? { label: 'Chờ bắt đầu', variant: 'warning' as const, canJoin: true }
-      : foundRoom.status === 'ACTIVE'
+      : foundRoom.status === RoomStatus.active
         ? { label: 'Đang thi', variant: 'success' as const, canJoin: false }
-        : foundRoom.status === 'FINISHED'
+        : foundRoom.status === RoomStatus.finished
           ? { label: 'Đã kết thúc', variant: 'danger' as const, canJoin: false }
           : { label: 'Chưa mở', variant: 'default' as const, canJoin: false }
     : null;
@@ -156,9 +157,9 @@ export default function StudentJoinPage() {
                 </div>
                 {!statusInfo.canJoin ? (
                   <div className="mt-3 rounded-lg bg-(--accent-surface) px-3 py-2 text-xs font-semibold text-amber-800">
-                    {foundRoom.status === 'ACTIVE'
+                    {foundRoom.status === RoomStatus.active
                       ? 'Phòng đã bắt đầu. Bạn cần vào phòng trước khi giáo viên bấm "Bắt đầu thi".'
-                      : foundRoom.status === 'FINISHED'
+                      : foundRoom.status === RoomStatus.finished
                         ? 'Phòng thi đã kết thúc. Bạn không thể vào phòng này nữa.'
                         : 'Phòng thi chưa được mở. Vui lòng chờ giáo viên.'}
                   </div>

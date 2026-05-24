@@ -5,15 +5,16 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { useToast } from '@/components/ui/toast';
-import { getExamDetail, getRoomPublicInfo, type Question } from '@/lib/api';
-import { useAuth } from '@/lib/auth-context';
+import { getExamDetail, getRoomPublicInfo } from '@/lib/api/http';
 import {
   connectSocket,
   disconnectSocket,
   roomIdentification,
   type Socket,
   toBackendViolationType,
-} from '@/lib/socket';
+} from '@/lib/api/socket';
+import { Question, RoomStatus, UserRole, ViolationType } from '@/lib/api/types';
+import { useAuth } from '@/lib/auth-context';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
@@ -21,13 +22,6 @@ import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'rea
 type FaceApiModule = typeof import('@vladmandic/face-api');
 
 type OptionId = 'A' | 'B' | 'C' | 'D';
-type ViolationType =
-  'tab_switch'
-  | 'keyboard_copy'
-  | 'keyboard_paste'
-  | 'camera_multiple_faces'
-  | 'camera_gaze_away'
-  | 'camera_missing';
 
 function formatTime(totalSeconds: number): string {
   const minutes = Math.floor(totalSeconds / 60);
@@ -75,8 +69,13 @@ function StudentExamRunnerContent() {
   const submittingRef = useRef(false);
   const [warningMessage, setWarningMessage] = useState<string | null>(null);
   const [violationCounts, setViolationCounts] = useState<Record<ViolationType, number>>({
-    tab_switch: 0, keyboard_copy: 0, keyboard_paste: 0,
-    camera_multiple_faces: 0, camera_gaze_away: 0, camera_missing: 0,
+    [ViolationType.tabSwitch]: 0,
+    [ViolationType.keyboardCopy]: 0,
+    [ViolationType.keyboardPaste]: 0,
+    [ViolationType.cameraMultipleFaces]: 0,
+    [ViolationType.cameraGazeAway]: 0,
+    [ViolationType.cameraMissing]: 0,
+    [ViolationType.other]: 0,
   });
   
   // Camera
@@ -110,6 +109,39 @@ function StudentExamRunnerContent() {
     [submitted, loadingExam],
   );
   
+  const loadExam = async (eid: number, prevAnswers?: {
+    questionId: number,
+    selectedOptionId: number
+  }[], initialSecsLeft?: number) => {
+    try {
+      const detail = await getExamDetail(eid);
+      setQuestions(detail.questions);
+      setExamTitle(detail.title);
+      setDurationMinutes(detail.durationMinutes);
+      
+      if (initialSecsLeft !== undefined) {
+        setTimeLeftSeconds(initialSecsLeft);
+      } else {
+        setTimeLeftSeconds(detail.durationMinutes * 60);
+      }
+      
+      const initialAnswers = Array(detail.questions.length).fill(null);
+      if (prevAnswers && prevAnswers.length > 0) {
+        detail.questions.forEach((q, idx) => {
+          const pa = prevAnswers.find((a) => a.questionId === q.id);
+          if (pa) {
+            initialAnswers[idx] = pa.selectedOptionId;
+          }
+        });
+      }
+      setAnswers(initialAnswers);
+    } catch {
+      toast.push({ title: 'Lỗi tải đề thi', variant: 'danger' });
+    } finally {
+      setLoadingExam(false);
+    }
+  };
+  
   useEffect(() => {
     canAutoSubmitRef.current =
       !waitingForStart && !submitted && questions.length > 0 && !loadingExam;
@@ -122,7 +154,7 @@ function StudentExamRunnerContent() {
       router.push('/login');
       return;
     }
-    if (user.role !== 'student') {
+    if (user.role !== UserRole.student) {
       router.push('/teacher');
       return;
     }
@@ -156,10 +188,10 @@ function StudentExamRunnerContent() {
         if (res?.attemptId) {
           setAttemptId(res.attemptId);
         }
-        if (res?.status === 'WAITING') {
+        if (res?.status === RoomStatus.waiting) {
           setWaitingForStart(true);
           setLoadingExam(false);
-        } else if (res?.status === 'ACTIVE') {
+        } else if (res?.status === RoomStatus.active) {
           setWaitingForStart(false);
           let secsLeft: number | undefined;
           if (res.endTime) {
@@ -246,40 +278,6 @@ function StudentExamRunnerContent() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [roomId, examCode, user, authLoading]);
   
-  
-  const loadExam = async (eid: number, prevAnswers?: {
-    questionId: number,
-    selectedOptionId: number
-  }[], initialSecsLeft?: number) => {
-    try {
-      const detail = await getExamDetail(eid);
-      setQuestions(detail.questions);
-      setExamTitle(detail.title);
-      setDurationMinutes(detail.durationMinutes);
-      
-      if (initialSecsLeft !== undefined) {
-        setTimeLeftSeconds(initialSecsLeft);
-      } else {
-        setTimeLeftSeconds(detail.durationMinutes * 60);
-      }
-      
-      const initialAnswers = Array(detail.questions.length).fill(null);
-      if (prevAnswers && prevAnswers.length > 0) {
-        detail.questions.forEach((q, idx) => {
-          const pa = prevAnswers.find((a) => a.questionId === q.id);
-          if (pa) {
-            initialAnswers[idx] = pa.selectedOptionId;
-          }
-        });
-      }
-      setAnswers(initialAnswers);
-    } catch {
-      toast.push({ title: 'Lỗi tải đề thi', variant: 'danger' });
-    } finally {
-      setLoadingExam(false);
-    }
-  };
-  
   /* ── Timer ────────────────────────────────────────────────────────────── */
   // B11 FIX: Use a ref for the timer ID to avoid multiple concurrent intervals.
   // The old dependency [timeLeftSeconds > 0, submitted] was a boolean expression
@@ -323,12 +321,13 @@ function StudentExamRunnerContent() {
     setWarningMessage(description);
     
     const titleMap: Record<ViolationType, string> = {
-      tab_switch: 'Cảnh báo: Chuyển tab',
-      keyboard_copy: 'Cảnh báo: Copy',
-      keyboard_paste: 'Cảnh báo: Paste',
-      camera_multiple_faces: 'Cảnh báo: Nhiều khuôn mặt',
-      camera_gaze_away: 'Cảnh báo: Nhìn ra ngoài',
-      camera_missing: 'Cảnh báo: Thiếu camera',
+      [ViolationType.tabSwitch]: 'Cảnh báo: Chuyển tab',
+      [ViolationType.keyboardCopy]: 'Cảnh báo: Copy',
+      [ViolationType.keyboardPaste]: 'Cảnh báo: Paste',
+      [ViolationType.cameraMultipleFaces]: 'Cảnh báo: Nhiều khuôn mặt',
+      [ViolationType.cameraGazeAway]: 'Cảnh báo: Nhìn ra ngoài',
+      [ViolationType.cameraMissing]: 'Cảnh báo: Thiếu camera',
+      [ViolationType.other]: 'Cảnh báo: Vi phạm khác',
     };
     toast.push({ title: titleMap[type], message: description, variant: 'danger' });
     window.setTimeout(() => setWarningMessage(null), 4500);
@@ -383,7 +382,7 @@ function StudentExamRunnerContent() {
             setCameraError('Camera đã bị ngắt kết nối hoặc tắt.');
             if (!hasSentCameraMissingRef.current) {
               hasSentCameraMissingRef.current = true;
-              pushViolationRef.current('camera_missing', 'Camera bị tắt trong quá trình làm bài.');
+              pushViolationRef.current(ViolationType.cameraMissing, 'Camera bị tắt trong quá trình làm bài.');
             }
           };
         }
@@ -392,7 +391,7 @@ function StudentExamRunnerContent() {
         setCameraError(err.message || 'Không thể truy cập camera. Vui lòng cấp quyền.');
         if (!hasSentCameraMissingRef.current) {
           hasSentCameraMissingRef.current = true;
-          pushViolationRef.current('camera_missing', 'Người dùng từ chối quyền truy cập camera.');
+          pushViolationRef.current(ViolationType.cameraMissing, 'Người dùng từ chối quyền truy cập camera.');
         }
       }
     };
@@ -406,7 +405,6 @@ function StudentExamRunnerContent() {
     // BUG FIX: removed pushViolation from deps — use pushViolationRef instead
     // to prevent re-running this effect (and re-calling getUserMedia) when
     // attemptId changes, which was causing duplicate violation reports.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [cameraActive, cameraRetryCount]);
   
   useEffect(() => {
@@ -423,10 +421,10 @@ function StudentExamRunnerContent() {
         // with violations when camera is intermittent or face detection is flaky.
         if (now - lastCameraViolationTime.current > 30000) {
           if (detections.length === 0) {
-            pushViolation('camera_missing', 'Không tìm thấy khuôn mặt trong khung hình.');
+            pushViolation(ViolationType.cameraMissing, 'Không tìm thấy khuôn mặt trong khung hình.');
             lastCameraViolationTime.current = now;
           } else if (detections.length > 1) {
-            pushViolation('camera_multiple_faces', `Phát hiện ${detections.length} khuôn mặt.`);
+            pushViolation(ViolationType.cameraMultipleFaces, `Phát hiện ${detections.length} khuôn mặt.`);
             lastCameraViolationTime.current = now;
           }
         }
@@ -440,7 +438,7 @@ function StudentExamRunnerContent() {
     if (!antiCheatActive) return;
     const onVisibility = () => {
       if (document.visibilityState === 'hidden')
-        pushViolation('tab_switch', 'Bạn vừa rời khỏi tab làm bài.');
+        pushViolation(ViolationType.tabSwitch, 'Bạn vừa rời khỏi tab làm bài.');
     };
     document.addEventListener('visibilitychange', onVisibility);
     return () => document.removeEventListener('visibilitychange', onVisibility);
@@ -451,11 +449,11 @@ function StudentExamRunnerContent() {
     const onKeyDown = (e: KeyboardEvent) => {
       if ((e.ctrlKey || e.metaKey) && e.key === 'c') {
         e.preventDefault();
-        pushViolation('keyboard_copy', 'Hành vi copy (Ctrl+C) đã bị chặn và ghi nhận.');
+        pushViolation(ViolationType.keyboardCopy, 'Hành vi copy (Ctrl+C) đã bị chặn và ghi nhận.');
       }
       if ((e.ctrlKey || e.metaKey) && e.key === 'v') {
         e.preventDefault();
-        pushViolation('keyboard_paste', 'Hành vi paste (Ctrl+V) đã bị chặn và ghi nhận.');
+        pushViolation(ViolationType.keyboardPaste, 'Hành vi paste (Ctrl+V) đã bị chặn và ghi nhận.');
       }
     };
     document.addEventListener('keydown', onKeyDown);
@@ -595,7 +593,7 @@ function StudentExamRunnerContent() {
             <h2 className="text-2xl font-black text-zinc-900">Chờ giáo viên bắt đầu</h2>
             <p className="mt-2 text-sm text-zinc-500">
               Bạn đã vào phòng thi thành công. Bài thi sẽ bắt đầu khi giáo viên bấm{' '}
-              <span className="font-bold text-zinc-700">"Bắt đầu thi"</span>.
+              <span className="font-bold text-zinc-700">&quot;Bắt đầu thi&quot;</span>.
             </p>
           </div>
           <div className="flex gap-2">

@@ -1,41 +1,48 @@
-"use client";
+'use client';
 
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
-import { AppShell } from "@/components/layout/app-shell";
-import { Badge } from "@/components/ui/badge";
-import { ButtonLink } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { EmptyState } from "@/components/ui/empty-state";
-import { SkeletonGrid } from "@/components/ui/skeleton";
-import { useAuth } from "@/lib/auth-context";
-import { getStudentHistory, type HistoryItem } from "@/lib/api";
+import { AppShell } from '@/components/layout/app-shell';
+import { Badge } from '@/components/ui/badge';
+import { ButtonLink } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
+import { EmptyState } from '@/components/ui/empty-state';
+import { SkeletonGrid } from '@/components/ui/skeleton';
+import { getStudentHistory } from '@/lib/api/http';
+import { HistoryItem, UserRole } from '@/lib/api/types';
+import { useAuth } from '@/lib/auth-context';
+import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
 
 export default function StudentDashboardPage() {
   const router = useRouter();
   const { user, loading: authLoading } = useAuth();
   const [history, setHistory] = useState<HistoryItem[]>([]);
   const [loading, setLoading] = useState(true);
-
+  
   useEffect(() => {
     if (authLoading) return;
-    if (!user) { router.push("/login"); return; }
-    if (user.role !== "student") { router.push("/teacher"); return; }
-
+    if (!user) {
+      router.push('/login');
+      return;
+    }
+    if (user.role !== UserRole.student) {
+      router.push('/teacher');
+      return;
+    }
+    
     getStudentHistory(5, 0)
       .then(({ history: h }) => setHistory(h))
       .catch(() => setHistory([]))
       .finally(() => setLoading(false));
   }, [user, authLoading, router]);
-
+  
   return (
     <AppShell
       title="Student Dashboard"
       subtitle="Quản lý bài thi của bạn"
       nav={[
-        { href: "/student", label: "Tổng quan" },
-        { href: "/student/join", label: "Nhập mã phòng thi", badge: "PIN" },
-        { href: "/student/history", label: "Lịch sử bài thi" },
+        { href: '/student', label: 'Tổng quan' },
+        { href: '/student/join', label: 'Nhập mã phòng thi', badge: 'PIN' },
+        { href: '/student/history', label: 'Lịch sử bài thi' },
       ]}
     >
       <div className="page-stack">
@@ -46,7 +53,7 @@ export default function StudentDashboardPage() {
           </div>
           <ButtonLink href="/student/join">Vào phòng thi</ButtonLink>
         </div>
-
+        
         <div className="grid gap-4 sm:grid-cols-2">
           <Card title="Vào phòng thi nhanh" shadow="green">
             <p className="mb-3 text-sm text-zinc-600">Nhập mã PIN do giáo viên cung cấp để tham gia phòng thi ngay.</p>
@@ -61,7 +68,7 @@ export default function StudentDashboardPage() {
             </ButtonLink>
           </Card>
         </div>
-
+        
         {/* Recent attempts */}
         <div>
           <div className="mb-3 flex items-center justify-between">
@@ -75,7 +82,7 @@ export default function StudentDashboardPage() {
               icon="📋"
               title="Chưa có bài thi nào"
               description="Sau khi hoàn thành bài thi đầu tiên, kết quả sẽ hiện ở đây."
-              action={{ href: "/student/join", label: "Vào phòng thi ngay" }}
+              action={{ href: '/student/join', label: 'Vào phòng thi ngay' }}
             />
           ) : (
             <div className="grid gap-3">
@@ -87,21 +94,21 @@ export default function StudentDashboardPage() {
                     className="flex items-center gap-3 rounded-2xl border-2 border-(--border) bg-white p-3 shadow-[3px_3px_0_#1a1a1a]"
                   >
                     <div className={[
-                      "grid h-10 w-10 shrink-0 place-items-center rounded-xl border-2 border-(--border) text-lg font-black",
-                      passed ? "bg-(--surface-mint)" : "bg-[#FFD6DD]",
-                    ].join(" ")}>
-                      {passed ? "✓" : "✗"}
+                      'grid h-10 w-10 shrink-0 place-items-center rounded-xl border-2 border-(--border) text-lg font-black',
+                      passed ? 'bg-(--surface-mint)' : 'bg-[#FFD6DD]',
+                    ].join(' ')}>
+                      {passed ? '✓' : '✗'}
                     </div>
                     <div className="min-w-0 flex-1">
                       <div className="truncate text-sm font-bold text-zinc-900">{a.examTitle}</div>
                       <div className="text-xs text-zinc-500">
                         {a.submittedAt
-                          ? new Date(a.submittedAt).toLocaleString("vi-VN")
-                          : "—"}{" "}
+                          ? new Date(a.submittedAt).toLocaleString('vi-VN')
+                          : '—'}{' '}
                         • {a.roomCode}
                       </div>
                     </div>
-                    <Badge variant={passed ? "success" : "danger"}>
+                    <Badge variant={passed ? 'success' : 'danger'}>
                       {a.correctCount} đúng
                     </Badge>
                   </div>
@@ -110,15 +117,15 @@ export default function StudentDashboardPage() {
             </div>
           )}
         </div>
-
+        
         {/* Anti-cheat reminder */}
         <Card title="Lưu ý khi làm bài" shadow="dark">
           <ul className="grid gap-2 text-sm text-zinc-600">
             {[
-              "Không chuyển tab trong khi làm bài",
-              "Không dùng Ctrl+C / Ctrl+V",
-              "Không click chuột phải",
-              "Camera phải bật và hiển thị khuôn mặt rõ ràng",
+              'Không chuyển tab trong khi làm bài',
+              'Không dùng Ctrl+C / Ctrl+V',
+              'Không click chuột phải',
+              'Camera phải bật và hiển thị khuôn mặt rõ ràng',
             ].map((item) => (
               <li key={item} className="flex items-center gap-2">
                 <span className="inline-block h-2 w-2 rounded-full border-2 border-(--border) bg-(--primary)" />

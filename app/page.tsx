@@ -2,7 +2,7 @@
 
 import { ButtonLink } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { logout } from '@/lib/api';
+import { logout } from '@/lib/api/http';
 import { useAuth } from '@/lib/auth-context';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';

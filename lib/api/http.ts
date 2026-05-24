@@ -1,24 +1,19 @@
-/**
- * Centralized API client for SmartQuiz backend
- *
- * Backend response wrapper (ControllerResponse):
- *   { success: boolean, status: number, message: string, data: T, error: string|null }
- *
- * All helpers parse `response.data` to get the actual payload.
- * Cookies (JWT httpOnly) are sent automatically via credentials: 'include'.
- */
+import { ApiError } from './api.error';
+import {
+  AuthUser,
+  Exam,
+  ExamDetail,
+  HistoryItem,
+  Question,
+  RoomDetail,
+  RoomPublicInfo,
+  RoomSummary,
+  TeacherStats,
+  UserRole,
+  ViolationDetail,
+} from './types';
 
 const BASE = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8080';
-
-export class ApiError extends Error {
-  constructor(
-    public readonly status: number,
-    message: string,
-  ) {
-    super(message);
-    this.name = 'ApiError';
-  }
-}
 
 /** Generic backend response envelope */
 type ApiEnvelope<T> = {
@@ -95,159 +90,21 @@ export const api = {
   postForm: <T = unknown>(path: string, form: FormData) => requestForm<T>('POST', path, form),
 };
 
-/* ── Domain types ─────────────────────────────────────────────────────── */
-
-export type UserRole = 'teacher' | 'student';
-
-export type AuthUser = {
-  id: number;
-  email: string;
-  username: string;
-  role: UserRole;
-};
-
-export type Exam = {
-  id: number;
-  title: string;
-  description?: string;
-  durationMinutes: number;
-  createdAt: string;
-  questionCount: number;
-  roomCount: number;
-};
-
-export type Option = {
-  id: number;
-  content: string;
-  isCorrect: boolean;
-};
-
-export type Question = {
-  id: number;
-  content: string;
-  options: Option[];
-};
-
-export type ExamDetail = {
-  id: number;
-  title: string;
-  description?: string;
-  durationMinutes: number;
-  createdAt: string;
-  questions: Question[];
-  rooms: RoomSummary[];
-};
-
-export type RoomStatus = 'INACTIVE' | 'WAITING' | 'ACTIVE' | 'FINISHED';
-
-export type RoomSummary = {
-  id: number;
-  code: string;
-  status: RoomStatus;
-  startedAt?: string;
-  attemptCount?: number;
-};
-
-export type RoomDetail = {
-  id: number;
-  code: string;
-  status: RoomStatus;
-  createdAt: string;
-  exam: {
-    id: number;
-    title: string;
-    durationMinutes: number;
-    questionCount: number;
-  };
-  attemptCount: number;
-  attempts: AttemptSummary[];
-};
-
-export type AttemptSummary = {
-  id: number;
-  studentId: number;
-  username?: string;
-  correctCount: number;
-  submittedAt?: string;
-  answerCount: number;
-  violationCount: number;
-};
-
-export type RoomPublicInfo = {
-  id: number;
-  code: string;
-  status: RoomStatus;
-  createdAt: string;
-  examId: number;
-  examTitle: string;
-  durationMinutes: number;
-};
-
-export type HistoryItem = {
-  attemptId: number;
-  examTitle: string;
-  durationMinutes: number;
-  roomCode: string;
-  correctCount: number;
-  submittedAt?: string;
-  violationCount: number;
-};
-
-export type TeacherStats = {
-  totalExams: number;
-  totalAttempts: number;
-  totalViolations: number;
-  violationRate: number;
-};
-
-export type ViolationTypeCode =
-  | 'TAB_SWITCH'
-  | 'KEYBOARD_COPY'
-  | 'KEYBOARD_PASTE'
-  | 'CAMERA_MULTIPLE_FACES'
-  | 'CAMERA_GAZE_AWAY'
-  | 'CAMERA_MISSING'
-  | 'OTHER';
-
-export type ViolationDetail = {
-  id: number;
-  violationType: ViolationTypeCode;
-  evidenceUrl: string | null;
-  timestamp: string;
-};
-
-export const VIOLATION_TYPE_LABELS: Record<ViolationTypeCode, string> = {
-  TAB_SWITCH: 'Chuyển tab khỏi bài thi',
-  KEYBOARD_COPY: 'Copy (Ctrl+C)',
-  KEYBOARD_PASTE: 'Paste (Ctrl+V)',
-  CAMERA_MULTIPLE_FACES: 'Nhiều khuôn mặt trong khung hình',
-  CAMERA_GAZE_AWAY: 'Nhìn ra ngoài màn hình',
-  CAMERA_MISSING: 'Không phát hiện khuôn mặt / camera',
-  OTHER: 'Vi phạm khác',
-};
-
-export function normalizeViolationType(type: string): ViolationTypeCode {
-  const key = type.toUpperCase().replace(/-/g, '_') as ViolationTypeCode;
-  return key in VIOLATION_TYPE_LABELS ? key : 'OTHER';
-}
-
-export function getViolationLabel(type: string): string {
-  return VIOLATION_TYPE_LABELS[normalizeViolationType(type)];
-}
-
 /* ── Auth ─────────────────────────────────────────────────────────────── */
 
 export async function getMe(): Promise<AuthUser | null> {
   try {
     // Response: { success, status, message, data: { id, email, username, role }, error }
-    const envelope = await api.get<{ id: number; email: string; username: string; role: string }>('/auth/me');
+    const envelope = await api.get<{
+      id: number; email: string; username: string; role: UserRole;
+    }>('/auth/me');
     const d = envelope.data;
     if (!d) return null;
     return {
       id: d.id,
       email: d.email,
       username: d.username,
-      role: (d.role as string).toLowerCase() as UserRole,
+      role: d.role,
     };
   } catch {
     return null;
@@ -287,9 +144,7 @@ export async function listExams(): Promise<{ exams: Exam[]; total: number }> {
 export async function getExamDetail(id: number): Promise<ExamDetail> {
   // exam service findOne returns Result.ok('Fetched exam', { exam }) → data = { exam: ExamDetail }
   const envelope = await api.get<{ exam: ExamDetail }>(`/exams/${id}`);
-  // handle both wrapping styles defensively
-  const d = envelope.data as any;
-  return d?.exam ?? d;
+  return envelope.data.exam;
 }
 
 export async function createExam(body: {

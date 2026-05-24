@@ -1,15 +1,16 @@
-"use client";
+'use client';
 
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
-import { AppShell } from "@/components/layout/app-shell";
-import { Badge } from "@/components/ui/badge";
-import { Button, ButtonLink } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { EmptyState } from "@/components/ui/empty-state";
-import { SkeletonGrid } from "@/components/ui/skeleton";
-import { useAuth } from "@/lib/auth-context";
-import { getStudentHistory, type HistoryItem } from "@/lib/api";
+import { AppShell } from '@/components/layout/app-shell';
+import { Badge } from '@/components/ui/badge';
+import { Button, ButtonLink } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
+import { EmptyState } from '@/components/ui/empty-state';
+import { SkeletonGrid } from '@/components/ui/skeleton';
+import { getStudentHistory } from '@/lib/api/http';
+import { HistoryItem, UserRole } from '@/lib/api/types';
+import { useAuth } from '@/lib/auth-context';
+import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
 
 const PAGE_SIZE = 6;
 
@@ -20,12 +21,18 @@ export default function StudentHistoryPage() {
   const [page, setPage] = useState(0);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
-
+  
   useEffect(() => {
     if (authLoading) return;
-    if (!user) { router.push("/login"); return; }
-    if (user.role !== "student") { router.push("/teacher"); return; }
-
+    if (!user) {
+      router.push('/login');
+      return;
+    }
+    if (user.role !== UserRole.student) {
+      router.push('/teacher');
+      return;
+    }
+    
     const load = async () => {
       try {
         const { history, total: t } = await getStudentHistory(PAGE_SIZE, page * PAGE_SIZE);
@@ -39,17 +46,17 @@ export default function StudentHistoryPage() {
     };
     load();
   }, [user, authLoading, page, router]);
-
+  
   const totalPages = Math.ceil(total / PAGE_SIZE);
-
+  
   return (
     <AppShell
       title="Student Dashboard"
       subtitle="Lịch sử bài thi"
       nav={[
-        { href: "/student", label: "Tổng quan" },
-        { href: "/student/join", label: "Nhập mã phòng thi", badge: "PIN" },
-        { href: "/student/history", label: "Lịch sử bài thi" },
+        { href: '/student', label: 'Tổng quan' },
+        { href: '/student/join', label: 'Nhập mã phòng thi', badge: 'PIN' },
+        { href: '/student/history', label: 'Lịch sử bài thi' },
       ]}
     >
       <div className="grid gap-5">
@@ -60,7 +67,7 @@ export default function StudentHistoryPage() {
           </div>
           <ButtonLink href="/student" variant="secondary">Về dashboard</ButtonLink>
         </div>
-
+        
         {loading ? (
           <SkeletonGrid count={4} cols={1} />
         ) : all.length === 0 ? (
@@ -68,7 +75,7 @@ export default function StudentHistoryPage() {
             icon="📋"
             title="Chưa có bài thi nào"
             description="Sau khi hoàn thành bài thi, kết quả sẽ hiện ở đây."
-            action={{ href: "/student/join", label: "Vào phòng thi" }}
+            action={{ href: '/student/join', label: 'Vào phòng thi' }}
           />
         ) : (
           <>
@@ -85,7 +92,7 @@ export default function StudentHistoryPage() {
                         <div className="truncate text-sm font-bold text-zinc-900">{a.examTitle}</div>
                         <div className="mt-0.5 flex flex-wrap gap-x-3 gap-y-0.5 text-xs text-zinc-500">
                           {a.submittedAt && (
-                            <span>{new Date(a.submittedAt).toLocaleString("vi-VN")}</span>
+                            <span>{new Date(a.submittedAt).toLocaleString('vi-VN')}</span>
                           )}
                           <span>Đúng {a.correctCount} câu</span>
                           <span className="font-mono">{a.roomCode}</span>
@@ -95,7 +102,7 @@ export default function StudentHistoryPage() {
                         </div>
                       </div>
                       <div className="flex items-center gap-2">
-                        <Badge variant={passed ? "success" : "danger"}>
+                        <Badge variant={passed ? 'success' : 'danger'}>
                           {a.correctCount} câu đúng
                         </Badge>
                       </div>
@@ -104,22 +111,29 @@ export default function StudentHistoryPage() {
                 })}
               </div>
             </Card>
-
+            
             {totalPages > 1 && (
               <div className="flex items-center justify-center gap-2">
                 <Button
                   variant="secondary"
-                  onClick={() => { setPage((p) => Math.max(0, p - 1)); setLoading(true); }}
+                  onClick={() => {
+                    setPage((p) => Math.max(0, p - 1));
+                    setLoading(true);
+                  }}
                   disabled={page === 0}
                 >
                   Trước
                 </Button>
-                <span className="rounded-full border-2 border-(--border) bg-white px-4 py-2 text-sm font-bold text-zinc-900 shadow-[2px_2px_0_#1a1a1a]">
+                <span
+                  className="rounded-full border-2 border-(--border) bg-white px-4 py-2 text-sm font-bold text-zinc-900 shadow-[2px_2px_0_#1a1a1a]">
                   {page + 1} / {totalPages}
                 </span>
                 <Button
                   variant="secondary"
-                  onClick={() => { setPage((p) => Math.min(totalPages - 1, p + 1)); setLoading(true); }}
+                  onClick={() => {
+                    setPage((p) => Math.min(totalPages - 1, p + 1));
+                    setLoading(true);
+                  }}
                   disabled={page >= totalPages - 1}
                 >
                   Sau

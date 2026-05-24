@@ -5,7 +5,8 @@ import { Button, ButtonLink } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/components/ui/toast';
-import { ApiError, createExam, generateAiQuestionsPreview } from '@/lib/api';
+import { createExam, generateAiQuestionsPreview, UserRole } from '@/lib/api/http';
+import { ApiError } from '@/lib/api/api.error';
 import { useAuth } from '@/lib/auth-context';
 import { useRouter } from 'next/navigation';
 import { ChangeEvent, useEffect, useMemo, useState } from 'react';
@@ -129,7 +130,7 @@ export default function TeacherCreateExamPage() {
       router.push('/login');
       return;
     }
-    if (user.role !== 'teacher') {
+    if (user.role !== UserRole.teacher) {
       router.push('/student');
       return;
     }

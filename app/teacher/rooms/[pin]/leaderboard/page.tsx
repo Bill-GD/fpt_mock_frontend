@@ -1,16 +1,11 @@
 'use client';
 
 import { ProgressBar } from '@/components/ui/progress-bar';
-import {
-  getRoomDetail,
-  getViolationLabel,
-  getViolationsByAttempt,
-  type RoomDetail,
-  type ViolationDetail,
-} from '@/lib/api';
+import { getRoomDetail, getViolationsByAttempt } from '@/lib/api/http';
+import { getViolationLabel, RoomDetail, RoomStatus, UserRole, ViolationDetail } from '@/lib/api/types';
 import { useAuth } from '@/lib/auth-context';
 import { applyLeaderboardAnswer } from '@/lib/leaderboard-live';
-import { connectSocket, leaveQuizSocketRoom, roomIdentification } from '@/lib/socket';
+import { connectSocket, leaveQuizSocketRoom, roomIdentification } from '@/lib/api/socket';
 import { deferStateUpdate } from '@/lib/utils';
 import { AnimatePresence, motion } from 'framer-motion';
 import { AlertTriangle, BarChart2, Flame, ShieldAlert, TrendingUp, X } from 'lucide-react';
@@ -101,9 +96,9 @@ function timeSince(iso: string): string {
 }
 
 function statusLabel(s: string) {
-  if (s === 'WAITING') return 'Chờ bắt đầu';
-  if (s === 'ACTIVE') return 'Đang thi';
-  if (s === 'FINISHED') return 'Đã kết thúc';
+  if (s === RoomStatus.waiting) return 'Chờ bắt đầu';
+  if (s === RoomStatus.active) return 'Đang thi';
+  if (s === RoomStatus.finished) return 'Đã kết thúc';
   return 'Chưa mở';
 }
 
@@ -158,7 +153,7 @@ export default function LeaderboardPage({
       router.push('/login');
       return;
     }
-    if (user.role !== 'teacher') {
+    if (user.role !== UserRole.teacher) {
       router.push('/student');
       return;
     }
@@ -291,7 +286,7 @@ export default function LeaderboardPage({
     s.on('force_submit', () => void loadRoom());
     
     s.on('room_ended', () => {
-      setRoom((prev) => (prev ? { ...prev, status: 'FINISHED' } : prev));
+      setRoom((prev) => (prev ? { ...prev, status: RoomStatus.finished } : prev));
       void loadRoom();
     });
     
@@ -322,7 +317,7 @@ export default function LeaderboardPage({
   
   /* Fallback nhẹ khi đang thi (phòng hờ socket trễ) */
   useEffect(() => {
-    if (roomStatus !== 'ACTIVE') return;
+    if (roomStatus !== RoomStatus.active) return;
     const timer = setInterval(() => void loadRoom(), 8000);
     return () => clearInterval(timer);
   }, [roomStatus, loadRoom]);
@@ -397,7 +392,7 @@ export default function LeaderboardPage({
   }
   
   const isFinished =
-    room.status === 'FINISHED' ||
+    room.status === RoomStatus.finished ||
     (sorted.length > 0 && sorted.every((s) => s.status === 'completed'));
   
   const top3 = sorted.slice(0, 3);

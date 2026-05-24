@@ -7,15 +7,9 @@ import { Card } from '@/components/ui/card';
 import { EmptyState } from '@/components/ui/empty-state';
 import { SkeletonGrid } from '@/components/ui/skeleton';
 import { useToast } from '@/components/ui/toast';
-import {
-  ApiError,
-  createRoom,
-  type ExamDetail,
-  getExamDetail,
-  getRoomsByExam,
-  openRoom,
-  type RoomSummary,
-} from '@/lib/api';
+import { createRoom, getExamDetail, getRoomsByExam, openRoom } from '@/lib/api/http';
+import { ApiError } from '@/lib/api/api.error';
+import { ExamDetail, RoomStatus, RoomSummary, UserRole } from '@/lib/api/types';
 import { useAuth } from '@/lib/auth-context';
 import { useRouter } from 'next/navigation';
 import { use, useCallback, useEffect, useState } from 'react';
@@ -28,9 +22,9 @@ const TEACHER_NAV = [
 ];
 
 function roomStatusBadge(status: RoomSummary['status']) {
-  if (status === 'ACTIVE') return { label: 'Đang thi', variant: 'warning' as const };
-  if (status === 'WAITING') return { label: 'Chờ bắt đầu', variant: 'success' as const };
-  if (status === 'FINISHED') return { label: 'Đã kết thúc', variant: 'danger' as const };
+  if (status === RoomStatus.active) return { label: 'Đang thi', variant: 'warning' as const };
+  if (status === RoomStatus.waiting) return { label: 'Chờ bắt đầu', variant: 'success' as const };
+  if (status === RoomStatus.finished) return { label: 'Đã kết thúc', variant: 'danger' as const };
   return { label: 'Chưa mở', variant: 'default' as const };
 }
 
@@ -69,7 +63,7 @@ export default function TeacherExamDetailPage({
       router.push('/login');
       return;
     }
-    if (user.role !== 'teacher') {
+    if (user.role !== UserRole.teacher) {
       router.push('/student');
       return;
     }
@@ -79,7 +73,7 @@ export default function TeacherExamDetailPage({
   
   /* Tự làm mới danh sách phòng đang ACTIVE (phòng hết giờ chuyển FINISHED trên server) */
   useEffect(() => {
-    const hasActive = rooms.some((r) => r.status === 'ACTIVE');
+    const hasActive = rooms.some((r) => r.status === RoomStatus.active);
     if (!hasActive) return;
     const timer = setInterval(() => void reload(), 10000);
     return () => clearInterval(timer);
@@ -187,12 +181,12 @@ export default function TeacherExamDetailPage({
                       </p>
                     </div>
                     <div className="flex shrink-0 flex-wrap gap-2">
-                      {r.status === 'INACTIVE' && (
+                      {r.status === RoomStatus.inactive && (
                         <Button onClick={() => handleOpenRoom(r.id)}>Mở phòng</Button>
                       )}
-                      {(r.status === 'WAITING' || r.status === 'ACTIVE' || r.status === 'FINISHED') && (
+                      {(r.status === RoomStatus.waiting || r.status === RoomStatus.active || r.status === RoomStatus.finished) && (
                         <ButtonLink href={`/teacher/rooms/${r.id}`}>
-                          {r.status === 'FINISHED' ? 'Xem kết quả' : 'Xem phòng thi'}
+                          {r.status === RoomStatus.finished ? 'Xem kết quả' : 'Xem phòng thi'}
                         </ButtonLink>
                       )}
                     </div>

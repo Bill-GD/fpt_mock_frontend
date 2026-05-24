@@ -4,7 +4,8 @@ import { Button, ButtonLink } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/components/ui/toast';
-import { ApiError } from '@/lib/api';
+
+import { ApiError } from '@/lib/api/api.error';
 import { useAuth } from '@/lib/auth-context';
 import { useRouter } from 'next/navigation';
 import { SubmitEvent, useState } from 'react';
@@ -30,11 +31,7 @@ export default function LoginPage() {
     try {
       const user = await login(email, password);
       toast.push({ title: 'Đăng nhập thành công!', variant: 'success' });
-      if (user.role === 'teacher') {
-        router.push('/teacher');
-      } else {
-        router.push('/student');
-      }
+      router.push(`/${user.role.toLowerCase()}`);
     } catch (err) {
       if (err instanceof ApiError) {
         setError(err.message);

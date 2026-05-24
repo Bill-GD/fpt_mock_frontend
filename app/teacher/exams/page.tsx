@@ -7,7 +7,7 @@ import { Card } from '@/components/ui/card';
 import { EmptyState } from '@/components/ui/empty-state';
 import { SkeletonGrid } from '@/components/ui/skeleton';
 import { useToast } from '@/components/ui/toast';
-import { type Exam, getRoomsByExam, listExams, type RoomSummary } from '@/lib/api';
+import { type Exam, getRoomsByExam, listExams, type RoomSummary, UserRole } from '@/lib/api/http';
 import { useAuth } from '@/lib/auth-context';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
@@ -51,7 +51,7 @@ export default function TeacherExamsPage() {
       router.push('/login');
       return;
     }
-    if (user.role !== 'teacher') {
+    if (user.role !== UserRole.teacher) {
       router.push('/student');
       return;
     }
@@ -60,7 +60,7 @@ export default function TeacherExamsPage() {
   }, [user, authLoading]);
   
   const activeRoom = (rooms: RoomSummary[]) =>
-    rooms.find((r) => r.status === 'WAITING' || r.status === 'ACTIVE');
+    rooms.find((r) => r.status === RoomStatus.waiting || r.status === RoomStatus.active);
   
   return (
     <AppShell title="Teacher Dashboard" subtitle="Danh sách đề thi" nav={TEACHER_NAV}>

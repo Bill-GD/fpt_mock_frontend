@@ -7,9 +7,9 @@ import { Card } from '@/components/ui/card';
 import { EmptyState } from '@/components/ui/empty-state';
 import { SkeletonGrid } from '@/components/ui/skeleton';
 import { useToast } from '@/components/ui/toast';
-import { getRoomDetail, type RoomDetail } from '@/lib/api';
+import { getRoomDetail, type RoomDetail, UserRole } from '@/lib/api/http';
 import { useAuth } from '@/lib/auth-context';
-import { connectSocket, leaveQuizSocketRoom, roomIdentification, type Socket } from '@/lib/socket';
+import { connectSocket, leaveQuizSocketRoom, roomIdentification, type Socket } from '@/lib/api/socket';
 import { useRouter } from 'next/navigation';
 import { use, useCallback, useEffect, useRef, useState } from 'react';
 
@@ -31,16 +31,16 @@ type LeaderboardEntry = {
 };
 
 function statusLabel(s: string) {
-  if (s === 'WAITING') return 'Chờ bắt đầu';
-  if (s === 'ACTIVE') return 'Đang thi';
-  if (s === 'FINISHED') return 'Đã kết thúc';
+  if (s === RoomStatus.waiting) return 'Chờ bắt đầu';
+  if (s === RoomStatus.active) return 'Đang thi';
+  if (s === RoomStatus.finished) return 'Đã kết thúc';
   return 'Chưa mở';
 }
 
 function statusBadge(s: string): 'success' | 'warning' | 'danger' | 'default' {
-  if (s === 'WAITING') return 'success';
-  if (s === 'ACTIVE') return 'warning';
-  if (s === 'FINISHED') return 'danger';
+  if (s === RoomStatus.waiting) return 'success';
+  if (s === RoomStatus.active) return 'warning';
+  if (s === RoomStatus.finished) return 'danger';
   return 'default';
 }
 
@@ -94,7 +94,7 @@ export default function TeacherRoomDetailPage({
       router.push('/login');
       return;
     }
-    if (user.role !== 'teacher') {
+    if (user.role !== UserRole.teacher) {
       router.push('/student');
       return;
     }
@@ -213,7 +213,7 @@ export default function TeacherRoomDetailPage({
     s.on('force_submit', () => void loadRoom());
     
     s.on('room_ended', () => {
-      setRoom((prev) => (prev ? { ...prev, status: 'FINISHED' } : prev));
+      setRoom((prev) => (prev ? { ...prev, status: RoomStatus.finished } : prev));
       void loadRoom();
     });
     
@@ -247,7 +247,7 @@ export default function TeacherRoomDetailPage({
   }, [roomCode, roomId, loadRoom, toastPush]);
   
   useEffect(() => {
-    if (roomStatus !== 'ACTIVE') return;
+    if (roomStatus !== RoomStatus.active) return;
     const timer = setInterval(() => void loadRoom(), 8000);
     return () => clearInterval(timer);
   }, [roomStatus, loadRoom]);
@@ -318,7 +318,7 @@ export default function TeacherRoomDetailPage({
           </div>
           <div className="flex gap-2">
             <ButtonLink href={`/teacher/rooms/${roomId}/leaderboard`}>🏆 Leaderboard</ButtonLink>
-            {room.status === 'WAITING' && (
+            {room.status === RoomStatus.waiting && (
               <Button onClick={handleStart}>Bắt đầu thi</Button>
             )}
             <ButtonLink href={`/teacher/exams/${room.exam.id}`} variant="secondary">Xem đề</ButtonLink>
@@ -326,7 +326,7 @@ export default function TeacherRoomDetailPage({
         </div>
         
         {/* PIN card */}
-        {room.status === 'WAITING' && (
+        {room.status === RoomStatus.waiting && (
           <Card shadow="green">
             <div className="py-6 text-center">
               <div className="text-sm font-bold text-zinc-500">Mã PIN phòng thi</div>
@@ -371,7 +371,7 @@ export default function TeacherRoomDetailPage({
           >
             {leaderboard.length === 0 ? (
               <div className="py-8 text-center text-sm text-zinc-500">
-                {room.status === 'WAITING'
+                {room.status === RoomStatus.waiting
                   ? 'Chưa có ai tham gia. Chờ học viên nhập PIN…'
                   : 'Chưa có ai tham gia phòng thi này.'}
               </div>

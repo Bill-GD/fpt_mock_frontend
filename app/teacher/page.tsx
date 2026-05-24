@@ -4,7 +4,8 @@ import { AppShell } from '@/components/layout/app-shell';
 import { ButtonLink } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { SkeletonGrid } from '@/components/ui/skeleton';
-import { getTeacherStats, type TeacherStats } from '@/lib/api';
+import { getTeacherStats } from '@/lib/api/http';
+import { TeacherStats, UserRole } from '@/lib/api/types';
 import { useAuth } from '@/lib/auth-context';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
@@ -21,7 +22,7 @@ export default function TeacherDashboardPage() {
       router.push('/login');
       return;
     }
-    if (user.role !== 'teacher') {
+    if (user.role !== UserRole.teacher) {
       router.push('/student');
       return;
     }

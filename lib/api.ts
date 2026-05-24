@@ -33,7 +33,7 @@ async function request<T = unknown>(
   method: string,
   path: string,
   body?: unknown,
-): Promise<ApiEnvelope<T>> {
+) {
   const url = `${BASE}${path}`;
   const init: RequestInit = {
     method,
@@ -48,11 +48,11 @@ async function request<T = unknown>(
     let message = `${res.status} ${res.statusText}`;
     try {
       const json = await res.json();
-      // NestJS error format: { message, statusCode, error }
-      message = Array.isArray(json?.message)
-        ? json.message.join(', ')
-        : json?.message ?? json?.error ?? message;
-    } catch { /* ignore */
+      // NestJS error format: { message, status, error }
+      message = Array.isArray(json?.error)
+        ? json.error[0]
+        : json?.error ?? json?.message ?? message;
+    } catch {
     }
     throw new ApiError(res.status, message);
   }
@@ -78,9 +78,9 @@ async function requestForm<T = unknown>(
     let message = `${res.status} ${res.statusText}`;
     try {
       const json = await res.json();
-      message = Array.isArray(json?.message)
-        ? json.message.join(', ')
-        : json?.message ?? message;
+      message = Array.isArray(json?.error)
+        ? json.error[0]
+        : json?.error ?? json?.message ?? message;
     } catch { /* ignore */
     }
     throw new ApiError(res.status, message);

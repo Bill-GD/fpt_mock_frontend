@@ -2,12 +2,20 @@
 
 import { ButtonLink } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import { logout } from '@/lib/api';
 import { useAuth } from '@/lib/auth-context';
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 
 export default function Home() {
   const { user } = useAuth();
+  const router = useRouter();
   const signedIn = !!user;
+  
+  const handleLogout = async () => {
+    await logout();
+    router.push('/login');
+  };
   
   return (
     <div className="flex flex-1 flex-col">
@@ -27,7 +35,15 @@ export default function Home() {
             <a href="#faq" className="text-sm font-semibold text-white/80 hover:text-white transition">FAQ</a>
           </nav>
           {signedIn
-            ? <ButtonLink href={`/${user.role}`}>Dashboard</ButtonLink>
+            ? <div className="flex gap-2">
+              <ButtonLink href={`/${user.role}`}>Dashboard</ButtonLink>
+              <ButtonLink
+                onClick={() => void handleLogout()}
+                href=""
+              >
+                Đăng xuất
+              </ButtonLink>
+            </div>
             : <ButtonLink href="/login" size="md">Đăng nhập</ButtonLink>
           }
         </div>

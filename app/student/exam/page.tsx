@@ -15,6 +15,7 @@ import {
 } from '@/lib/api/socket';
 import { Question, RoomStatus, UserRole, ViolationType } from '@/lib/api/types';
 import { useAuth } from '@/lib/auth-context';
+import { deferStateUpdate } from '@/lib/utils';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
@@ -138,7 +139,7 @@ function StudentExamRunnerContent() {
     } catch {
       toast.push({ title: 'Lỗi tải đề thi', variant: 'danger' });
     } finally {
-      setLoadingExam(false);
+      deferStateUpdate(() => setLoadingExam(false));
     }
   };
   
@@ -173,7 +174,7 @@ function StudentExamRunnerContent() {
         message: 'Mã phòng thi phải đúng 8 ký tự.',
         variant: 'danger',
       });
-      setLoadingExam(false);
+      deferStateUpdate(() => setLoadingExam(false));
       return;
     }
     
@@ -182,7 +183,7 @@ function StudentExamRunnerContent() {
         console.log('[Student WS] join:', res);
         if (res?.error) {
           toast.push({ title: 'Không thể vào phòng thi', message: res.error, variant: 'danger' });
-          setLoadingExam(false);
+          deferStateUpdate(() => setLoadingExam(false));
           return;
         }
         if (res?.attemptId) {
@@ -190,7 +191,7 @@ function StudentExamRunnerContent() {
         }
         if (res?.status === RoomStatus.waiting) {
           setWaitingForStart(true);
-          setLoadingExam(false);
+          deferStateUpdate(() => setLoadingExam(false));
         } else if (res?.status === RoomStatus.active) {
           setWaitingForStart(false);
           let secsLeft: number | undefined;
@@ -215,11 +216,11 @@ function StudentExamRunnerContent() {
                 loadExam(info.examId, res.previousAnswers, secsLeft);
               } else {
                 toast.push({ title: 'Lỗi tải đề thi', message: 'Không tìm thấy thông tin phòng.', variant: 'danger' });
-                setLoadingExam(false);
+                deferStateUpdate(() => setLoadingExam(false));
               }
             }).catch(() => {
               toast.push({ title: 'Lỗi tải đề thi', variant: 'danger' });
-              setLoadingExam(false);
+              deferStateUpdate(() => setLoadingExam(false));
             });
           }
         }

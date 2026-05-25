@@ -12,6 +12,7 @@ import { ApiError } from '@/lib/api/api.error';
 import { ExamDetail, RoomStatus, RoomSummary, UserRole } from '@/lib/api/types';
 import { useAuth } from '@/lib/auth-context';
 import { TEACHER_NAV } from '@/components/layout/nav';
+import { deferStateUpdate } from '@/lib/utils';
 import { useRouter } from 'next/navigation';
 import { use, useCallback, useEffect, useState } from 'react';
 
@@ -61,7 +62,7 @@ export default function TeacherExamDetailPage({
       router.push('/student');
       return;
     }
-    reload();
+    deferStateUpdate(reload);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user, authLoading, id]);
   

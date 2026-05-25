@@ -9,16 +9,10 @@ import { SkeletonGrid } from '@/components/ui/skeleton';
 import { getRoomDetail, getRoomsByExam, getViolationsByAttempt, listExams } from '@/lib/api/http';
 import { AttemptSummary, Exam, getViolationLabel, UserRole, ViolationDetail } from '@/lib/api/types';
 import { useAuth } from '@/lib/auth-context';
+import { TEACHER_NAV } from '@/components/layout/nav';
 import { deferStateUpdate } from '@/lib/utils';
 import { useRouter } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
-
-const TEACHER_NAV = [
-  { href: '/teacher', label: 'Tổng quan' },
-  { href: '/teacher/exams', label: 'Danh sách đề' },
-  { href: '/teacher/exams/new', label: 'Tạo đề mới', badge: 'CSV/Manual/AI' },
-  { href: '/teacher/results', label: 'Kết quả & Vi phạm' },
-];
 
 type AttemptRow = AttemptSummary & {
   examTitle: string;
@@ -26,7 +20,6 @@ type AttemptRow = AttemptSummary & {
   roomCode: string;
   roomId: number;
 };
-
 
 function violationIcon(type: string): string {
   const key = type.toUpperCase().replace(/-/g, '_');

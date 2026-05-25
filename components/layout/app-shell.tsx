@@ -1,16 +1,11 @@
 'use client';
 
+import { NavItem } from '@/components/layout/nav';
 import { useAuth } from '@/lib/auth-context';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import * as React from 'react';
 import { ReactNode, useState } from 'react';
-
-export type NavItem = {
-  href: string;
-  label: string;
-  badge?: string;
-};
 
 function SidebarContent({
   nav,

@@ -11,15 +11,9 @@ import { getRoomDetail } from '@/lib/api/http';
 import { connectSocket, leaveQuizSocketRoom, roomIdentification, type Socket } from '@/lib/api/socket';
 import { RoomDetail, RoomStatus, UserRole } from '@/lib/api/types';
 import { useAuth } from '@/lib/auth-context';
+import { TEACHER_NAV } from '@/components/layout/nav';
 import { useRouter } from 'next/navigation';
 import { use, useCallback, useEffect, useRef, useState } from 'react';
-
-const TEACHER_NAV = [
-  { href: '/teacher', label: 'Tổng quan' },
-  { href: '/teacher/exams', label: 'Danh sách đề' },
-  { href: '/teacher/exams/new', label: 'Tạo đề mới', badge: 'CSV/Manual/AI' },
-  { href: '/teacher/results', label: 'Kết quả & Vi phạm' },
-];
 
 type LeaderboardEntry = {
   studentId: number;

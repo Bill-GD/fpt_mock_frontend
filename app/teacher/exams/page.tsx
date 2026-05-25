@@ -10,15 +10,9 @@ import { useToast } from '@/components/ui/toast';
 import { getRoomsByExam, listExams } from '@/lib/api/http';
 import { Exam, RoomStatus, RoomSummary, UserRole } from '@/lib/api/types';
 import { useAuth } from '@/lib/auth-context';
+import { TEACHER_NAV } from '@/components/layout/nav';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
-
-const TEACHER_NAV = [
-  { href: '/teacher', label: 'Tổng quan' },
-  { href: '/teacher/exams', label: 'Danh sách đề' },
-  { href: '/teacher/exams/new', label: 'Tạo đề mới', badge: 'CSV/Manual/AI' },
-  { href: '/teacher/results', label: 'Kết quả & Vi phạm' },
-];
 
 type ExamWithRooms = Exam & { rooms: RoomSummary[] };
 

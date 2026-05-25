@@ -231,7 +231,7 @@ function StudentExamRunnerContent() {
     s.on('connect', handleJoin);
     
     // Teacher started the exam — room is now ACTIVE
-    s.on('room_start', (payload: { durationMinutes: number; endTime: string }) => {
+    s.on('room_start', (payload) => {
       setWaitingForStart(false);
       const now = Date.now();
       const end = new Date(payload.endTime).getTime();

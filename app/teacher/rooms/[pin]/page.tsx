@@ -1,6 +1,7 @@
 'use client';
 
 import { AppShell } from '@/components/layout/app-shell';
+import { TEACHER_NAV } from '@/components/layout/nav';
 import { Badge } from '@/components/ui/badge';
 import { Button, ButtonLink } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -9,9 +10,8 @@ import { SkeletonGrid } from '@/components/ui/skeleton';
 import { useToast } from '@/components/ui/toast';
 import { getRoomDetail } from '@/lib/api/http';
 import { connectSocket, leaveQuizSocketRoom, roomIdentification, type Socket } from '@/lib/api/socket';
-import { RoomDetail, RoomStatus, UserRole } from '@/lib/api/types';
+import { ErrorSocketEnvelope, RoomDetail, RoomStatus, UserRole } from '@/lib/api/types';
 import { useAuth } from '@/lib/auth-context';
-import { TEACHER_NAV } from '@/components/layout/nav';
 import { deferStateUpdate } from '@/lib/utils';
 import { useRouter } from 'next/navigation';
 import { use, useCallback, useEffect, useRef, useState } from 'react';
@@ -40,11 +40,7 @@ function statusBadge(s: string): 'success' | 'warning' | 'danger' | 'default' {
   return 'default';
 }
 
-export default function TeacherRoomDetailPage({
-  params,
-}: {
-  params: Promise<{ pin: string }>;
-}) {
+export default function TeacherRoomDetailPage({ params }: { params: Promise<{ pin: string }> }) {
   // "pin" here is actually the room ID (number string) since we link by ID
   const { pin: roomIdStr } = use(params);
   const roomId = Number(roomIdStr);
@@ -107,13 +103,13 @@ export default function TeacherRoomDetailPage({
     if (!s.connected) s.connect();
     deferStateUpdate(() => setSocket(s));
     
-    s.emit('join', roomIdentification(roomCode, roomId), (res: { error?: string }) => {
+    s.emit('join', roomIdentification(roomCode, roomId), (res: ErrorSocketEnvelope) => {
       if (res?.error) {
         toastPush({ title: 'Lỗi kết nối phòng thi', message: res.error, variant: 'danger' });
       }
     });
     
-    s.on('student_join', (payload: { username: string; id: number; attemptId?: number }) => {
+    s.on('student_join', (payload) => {
       if (!existingStudentIdsRef.current.has(payload.id)) {
         existingStudentIdsRef.current.add(payload.id);
         toastPush({ title: `${payload.username} đã vào phòng`, variant: 'success' });
@@ -134,7 +130,7 @@ export default function TeacherRoomDetailPage({
       });
     });
     
-    s.on('room_start', (payload: { startTime: string; endTime: string; durationMinutes: number }) => {
+    s.on('room_start', (payload) => {
       toastPush({
         title: 'Phòng thi đã bắt đầu!',
         message: `Thời gian: ${payload.durationMinutes} phút`,
@@ -181,11 +177,7 @@ export default function TeacherRoomDetailPage({
       },
     );
     
-    s.on('student_submit', (payload: {
-      student: { id: number; username: string };
-      correctCount?: number;
-      totalQuestions?: number
-    }) => {
+    s.on('student_submit', (payload) => {
       toastPush({ title: `${payload.student.username} đã nộp bài`, variant: 'success' });
       setLeaderboard((prev) =>
         prev.map((e) =>
@@ -213,12 +205,8 @@ export default function TeacherRoomDetailPage({
       void loadRoom();
     });
     
-    s.on('log_violation', (payload: {
-      student: { id: number; username: string };
-      violationType?: string;
-      type?: string
-    }) => {
-      const vtype = payload.violationType ?? payload.type ?? 'vi phạm';
+    s.on('log_violation', (payload) => {
+      const vtype = payload.violationType ?? 'vi phạm';
       toastPush({ title: `Vi phạm: ${payload.student.username}`, message: vtype, variant: 'danger' });
       setLeaderboard((prev) =>
         prev.map((e) =>

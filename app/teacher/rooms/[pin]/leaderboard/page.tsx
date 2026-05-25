@@ -2,10 +2,10 @@
 
 import { ProgressBar } from '@/components/ui/progress-bar';
 import { getRoomDetail, getViolationsByAttempt } from '@/lib/api/http';
+import { connectSocket, leaveQuizSocketRoom, roomIdentification } from '@/lib/api/socket';
 import { getViolationLabel, RoomDetail, RoomStatus, UserRole, ViolationDetail } from '@/lib/api/types';
 import { useAuth } from '@/lib/auth-context';
 import { applyLeaderboardAnswer } from '@/lib/leaderboard-live';
-import { connectSocket, leaveQuizSocketRoom, roomIdentification } from '@/lib/api/socket';
 import { deferStateUpdate } from '@/lib/utils';
 import { AnimatePresence, motion } from 'framer-motion';
 import { AlertTriangle, BarChart2, Flame, ShieldAlert, TrendingUp, X } from 'lucide-react';
@@ -101,11 +101,7 @@ function statusLabel(s: string) {
   return 'Chưa mở';
 }
 
-export default function LeaderboardPage({
-  params,
-}: {
-  params: Promise<{ pin: string }>;
-}) {
+export default function LeaderboardPage({ params }: { params: Promise<{ pin: string }>; }) {
   const { pin: roomIdStr } = use(params);
   const roomId = Number(roomIdStr);
   const router = useRouter();
@@ -683,7 +679,9 @@ export default function LeaderboardPage({
                       <span>Điểm</span>
                     </div>
                     <div className="mt-1 font-black text-violet-950 flex justify-center items-center gap-2">
-                      <span className="text-3xl">{selectedStudent.accuracy}%</span>
+                      <span className="text-3xl">
+                        {Math.trunc(selectedStudent.correctCount / selectedStudent.totalQuestions * 100)}%
+                      </span>
                       <span className="text-lg">
                         ({selectedStudent.correctCount} / {selectedStudent.totalQuestions})
                       </span>

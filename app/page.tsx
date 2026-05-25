@@ -36,7 +36,7 @@ export default function Home() {
           </nav>
           {signedIn
             ? <div className="flex gap-2">
-              <ButtonLink href={`/${user.role}`}>Dashboard</ButtonLink>
+              <ButtonLink href={`/${user.role.toLowerCase()}`}>Dashboard</ButtonLink>
               <ButtonLink
                 onClick={() => void handleLogout()}
                 href=""

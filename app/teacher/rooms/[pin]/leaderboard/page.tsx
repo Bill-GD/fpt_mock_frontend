@@ -166,12 +166,7 @@ export default function LeaderboardPage({ params }: { params: Promise<{ pin: str
     
     s.emit('join', roomIdentification(roomCode, roomId));
     
-    s.on('leaderboard', (payload: {
-      student: { id: number; username: string };
-      correctCount: number;
-      answeredCount: number;
-      totalQuestions: number;
-    }) => {
+    s.on('leaderboard', (payload) => {
       setLeaderboard((prev) =>
         applyLeaderboardAnswer(prev, payload, (p) => ({
           studentId: p.student.id,
@@ -251,14 +246,14 @@ export default function LeaderboardPage({ params }: { params: Promise<{ pin: str
       },
     );
     
-    s.on('log_violation', (payload: { student: { id: number }; attemptId?: number }) => {
+    s.on('log_violation', (payload) => {
       setLeaderboard((prev) =>
         prev.map((e) =>
           e.studentId === payload.student.id
             ? {
               ...e,
               violationCount: e.violationCount + 1,
-              attemptId: payload.attemptId ?? e.attemptId,
+              attemptId: payload.id ?? e.attemptId,
             }
             : e,
         ),
@@ -269,7 +264,7 @@ export default function LeaderboardPage({ params }: { params: Promise<{ pin: str
           return {
             ...prev,
             violationCount: prev.violationCount + 1,
-            attemptId: payload.attemptId ?? prev.attemptId,
+            attemptId: payload.id ?? prev.attemptId,
           };
         }
         return prev;

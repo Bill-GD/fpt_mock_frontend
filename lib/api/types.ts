@@ -149,6 +149,15 @@ export function getViolationLabel(type: string): string {
 
 /* ── Socket ─────────────────────────────────────────────────────────────── */
 
+export type SocketEnvelope<T> = {
+  success: boolean;
+  message: string;
+  data: T;
+  error: string | null;
+}
+
+export type ErrorSocketEnvelope = Omit<SocketEnvelope<never>, 'error'> & { error: string };
+
 /** Matches backend RoomIdentificationDto — `code` is always required (8 chars). */
 export type RoomIdentificationPayload = {
   code: string;

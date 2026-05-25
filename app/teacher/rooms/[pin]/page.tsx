@@ -7,9 +7,10 @@ import { Card } from '@/components/ui/card';
 import { EmptyState } from '@/components/ui/empty-state';
 import { SkeletonGrid } from '@/components/ui/skeleton';
 import { useToast } from '@/components/ui/toast';
-import { getRoomDetail, type RoomDetail, UserRole } from '@/lib/api/http';
-import { useAuth } from '@/lib/auth-context';
+import { getRoomDetail } from '@/lib/api/http';
 import { connectSocket, leaveQuizSocketRoom, roomIdentification, type Socket } from '@/lib/api/socket';
+import { RoomDetail, RoomStatus, UserRole } from '@/lib/api/types';
+import { useAuth } from '@/lib/auth-context';
 import { useRouter } from 'next/navigation';
 import { use, useCallback, useEffect, useRef, useState } from 'react';
 

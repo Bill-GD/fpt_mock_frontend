@@ -29,7 +29,6 @@ type LeaderboardEntry = {
   attemptId?: number;
 };
 
-
 function buildEntriesFromRoom(room: RoomDetail): LeaderboardEntry[] {
   const total = room.exam.questionCount;
   return room.attempts.map((a) => {

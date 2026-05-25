@@ -1,6 +1,7 @@
 'use client';
 
 import { AppShell } from '@/components/layout/app-shell';
+import { TEACHER_NAV } from '@/components/layout/nav';
 import { Badge } from '@/components/ui/badge';
 import { ButtonLink } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -10,7 +11,7 @@ import { useToast } from '@/components/ui/toast';
 import { getRoomsByExam, listExams } from '@/lib/api/http';
 import { Exam, RoomStatus, RoomSummary, UserRole } from '@/lib/api/types';
 import { useAuth } from '@/lib/auth-context';
-import { TEACHER_NAV } from '@/components/layout/nav';
+import { deferStateUpdate } from '@/lib/utils';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
@@ -50,7 +51,7 @@ export default function TeacherExamsPage() {
       router.push('/student');
       return;
     }
-    load();
+    deferStateUpdate(load);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user, authLoading]);
   

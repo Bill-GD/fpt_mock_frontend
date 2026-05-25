@@ -12,6 +12,7 @@ import { connectSocket, leaveQuizSocketRoom, roomIdentification, type Socket } f
 import { RoomDetail, RoomStatus, UserRole } from '@/lib/api/types';
 import { useAuth } from '@/lib/auth-context';
 import { TEACHER_NAV } from '@/components/layout/nav';
+import { deferStateUpdate } from '@/lib/utils';
 import { useRouter } from 'next/navigation';
 import { use, useCallback, useEffect, useRef, useState } from 'react';
 
@@ -93,7 +94,7 @@ export default function TeacherRoomDetailPage({
       router.push('/student');
       return;
     }
-    loadRoom();
+    deferStateUpdate(loadRoom);
   }, [user, authLoading, router, loadRoom]);
   
   const roomCode = room?.code;
@@ -104,7 +105,7 @@ export default function TeacherRoomDetailPage({
     if (!roomCode) return;
     const s = connectSocket();
     if (!s.connected) s.connect();
-    setSocket(s);
+    deferStateUpdate(() => setSocket(s));
     
     s.emit('join', roomIdentification(roomCode, roomId), (res: { error?: string }) => {
       if (res?.error) {

@@ -418,7 +418,7 @@ export default function TeacherRoomDetailPage({
                         )}
                       </div>
                       <div className="font-black flex items-center gap-2">
-                        <span>{entry.correctCount}/{entry.answerCount}</span>
+                        <span>{entry.correctCount}/{room.exam.questionCount}</span>
                         -
                         <span className="text-lg">
                           {Math.trunc(entry.correctCount / room.exam.questionCount * 100)}%

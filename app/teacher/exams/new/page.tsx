@@ -13,16 +13,16 @@ import { useRouter } from 'next/navigation';
 import { ChangeEvent, useEffect, useMemo, useState } from 'react';
 
 type TabKey = 'csv' | 'manual' | 'ai';
-type OptionId = 'A' | 'B' | 'C' | 'D';
+type OptionKey = 'A' | 'B' | 'C' | 'D';
 
 type EditorQuestion = {
   id: string;
   content: string;
-  options: Record<OptionId, string>;
-  correct: OptionId;
+  options: Record<OptionKey, string>;
+  correct: OptionKey;
 };
 
-const OPTION_IDS: OptionId[] = ['A', 'B', 'C', 'D'];
+const OPTION_IDS: OptionKey[] = ['A', 'B', 'C', 'D'];
 
 function randomId(prefix: string) {
   return `${prefix}_${Math.random().toString(16).slice(2)}_${Date.now().toString(16)}`;
@@ -106,7 +106,7 @@ function parseCsv(text: string): { questions: EditorQuestion[]; rowErrors: strin
       continue;
     }
     const [content, a, b, c, d, answerRaw] = r;
-    const answer = answerRaw.toUpperCase() as OptionId;
+    const answer = answerRaw.toUpperCase() as OptionKey;
     if (!content || !a || !b || !c || !d) {
       rowErrors.push(`Dòng ${i + 1}: không được để trống.`);
       continue;
@@ -219,22 +219,20 @@ export default function TeacherCreateExamPage() {
       const qty = Math.max(1, Math.min(50, Number(aiCount) || 5));
       const { questions: questionsData } = await generateAiQuestionsPreview(aiTopic || 'Chủ đề tổng hợp', aiDifficulty, qty);
       
-      if (questionsData?.length) {
-        const editorQs: EditorQuestion[] = questionsData.map((q) => {
-          const opts: Record<OptionId, string> = { A: '', B: '', C: '', D: '' };
-          const optKeys: OptionId[] = ['A', 'B', 'C', 'D'];
-          let correctOpt: OptionId = 'A';
-          q.options.forEach((o, idx) => {
-            opts[optKeys[idx]] = o.content;
-            if (o.isCorrect) correctOpt = optKeys[idx];
-          });
-          return createEmptyQuestion({ content: q.content, options: opts, correct: correctOpt });
+      const editorQs: EditorQuestion[] = questionsData.map((q) => {
+        const opts: Record<OptionKey, string> = { A: '', B: '', C: '', D: '' };
+        const optKeys: OptionKey[] = ['A', 'B', 'C', 'D'];
+        let correctOpt: OptionKey = 'A';
+        q.options.forEach((o, idx) => {
+          opts[optKeys[idx]] = o.content;
+          if (o.isCorrect) correctOpt = optKeys[idx];
         });
-        
-        setQuestions(editorQs);
-        setTab('manual');
-        toast.push({ title: 'Đã nạp câu hỏi AI vào editor', variant: 'success' });
-      }
+        return createEmptyQuestion({ content: q.content, options: opts, correct: correctOpt });
+      });
+      
+      setQuestions((prevQ) => [...prevQ, ...editorQs].filter((q) => q.content.length != 0));
+      setTab('manual');
+      toast.push({ title: 'Đã nạp câu hỏi AI vào editor', variant: 'success' });
     } catch (err) {
       const msg = err instanceof ApiError ? err.message : 'Lỗi tạo câu hỏi AI';
       setSaveError(msg);
@@ -422,7 +420,7 @@ export default function TeacherCreateExamPage() {
                         value={q.correct}
                         onChange={(e) => updateQuestion(q.id, (old) => ({
                           ...old,
-                          correct: e.target.value as OptionId,
+                          correct: e.target.value as OptionKey,
                         }))}
                         className="h-11 rounded-xl border-2 border-(--border) bg-white px-3 text-sm text-zinc-900 shadow-[3px_3px_0_#1a1a1a] outline-none focus:shadow-[1px_1px_0_#1a1a1a] focus:ring-2 focus:ring-(--primary)/20 transition-all"
                       >

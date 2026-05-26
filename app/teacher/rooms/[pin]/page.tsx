@@ -94,7 +94,6 @@ export default function TeacherRoomDetailPage({ params }: { params: Promise<{ pi
   }, [user, authLoading, router, loadRoom]);
   
   const roomCode = room?.code;
-  const roomStatus = room?.status;
   
   /* Socket.IO connection */
   useEffect(() => {

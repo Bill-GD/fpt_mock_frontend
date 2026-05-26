@@ -17,13 +17,11 @@ import Confetti from 'react-confetti';
 type LeaderboardEntry = {
   studentId: number;
   username: string;
-  currentQuestion: number;
   totalQuestions: number;
   answeredCount: number;
   correctCount: number;
   violationCount: number;
   status: 'in_progress' | 'completed';
-  score?: number;
   accuracy: number;
   updatedAt: string;
   attemptId?: number;
@@ -38,7 +36,6 @@ function buildEntriesFromRoom(room: RoomDetail): LeaderboardEntry[] {
       studentId: a.studentId,
       attemptId: a.id,
       username: a.username ?? `Student #${a.studentId}`,
-      currentQuestion: completed ? total : Math.min(answeredCount + 1, total),
       totalQuestions: total,
       answeredCount,
       correctCount: a.correctCount,
@@ -49,7 +46,7 @@ function buildEntriesFromRoom(room: RoomDetail): LeaderboardEntry[] {
           ? parseFloat(((a.correctCount / total) * 10).toFixed(1))
           : undefined,
       accuracy:
-        answeredCount > 0 ? Math.round((a.correctCount / answeredCount) * 100) : 0,
+        answeredCount > 0 ? Math.round((a.correctCount / total) * 100) : 0,
       updatedAt: a.submittedAt ?? new Date().toISOString(),
     };
   });
@@ -101,7 +98,7 @@ function statusLabel(s: string) {
   return 'Chưa mở';
 }
 
-export default function LeaderboardPage({ params }: { params: Promise<{ pin: string }>; }) {
+export default function LeaderboardPage({ params }: { params: Promise<{ pin: string }> }) {
   const { pin: roomIdStr } = use(params);
   const roomId = Number(roomIdStr);
   const router = useRouter();
@@ -174,15 +171,11 @@ export default function LeaderboardPage({ params }: { params: Promise<{ pin: str
           correctCount: p.correctCount,
           answeredCount: p.answeredCount,
           totalQuestions: p.totalQuestions || totalQuestions,
-          currentQuestion: Math.min(
-            p.answeredCount + 1,
-            p.totalQuestions || totalQuestions || 1,
-          ),
           violationCount: 0,
           status: 'in_progress' as const,
           accuracy:
             p.answeredCount > 0
-              ? Math.round((p.correctCount / p.answeredCount) * 100)
+              ? Math.round((p.correctCount / p.totalQuestions) * 100)
               : 0,
           updatedAt: new Date().toISOString(),
         })),
@@ -207,7 +200,6 @@ export default function LeaderboardPage({ params }: { params: Promise<{ pin: str
                 status: 'completed' as const,
                 correctCount: correct,
                 answeredCount: total,
-                currentQuestion: total,
                 totalQuestions: total,
                 score: total > 0 ? parseFloat(((correct / total) * 10).toFixed(1)) : 0,
                 accuracy: total > 0 ? Math.round((correct / total) * 100) : 0,
@@ -234,7 +226,6 @@ export default function LeaderboardPage({ params }: { params: Promise<{ pin: str
               correctCount: 0,
               answeredCount: 0,
               totalQuestions,
-              currentQuestion: 1,
               violationCount: 0,
               status: 'in_progress' as const,
               accuracy: 0,
@@ -551,8 +542,9 @@ export default function LeaderboardPage({ params }: { params: Promise<{ pin: str
                         <div className="mt-1 flex items-center gap-1 text-[11px] text-zinc-500">
                           {entry.status === 'completed' ? '✓ Đã nộp' : '⏳ Đang làm'}
                           {isCheater && (
-                            <span
-                              className="font-bold text-red-600 ml-1 bg-red-100 px-1.5 py-0.2 rounded-full">• ⚠ {entry.violationCount} vi phạm</span>
+                            <span className="font-bold text-red-600 ml-1 bg-red-100 px-1.5 py-0.2 rounded-full">
+                              • ⚠ {entry.violationCount} vi phạm
+                            </span>
                           )}
                         </div>
                       </div>
@@ -561,7 +553,7 @@ export default function LeaderboardPage({ params }: { params: Promise<{ pin: str
                       Trả lời {entry.answeredCount}/{entry.totalQuestions}
                       <div className="mt-1 rounded-full">
                         <ProgressBar
-                          value={entry.currentQuestion}
+                          value={entry.answeredCount}
                           max={entry.totalQuestions}
                           border={false}
                         />
@@ -632,8 +624,9 @@ export default function LeaderboardPage({ params }: { params: Promise<{ pin: str
                       {loadingViolations ? (
                         <div className="text-xs text-red-500 text-center py-4">Đang tải chi tiết vi phạm...</div>
                       ) : violations.length === 0 ? (
-                        <div className="text-xs text-red-500 text-center py-4 font-bold">Không tìm thấy chi tiết vi
-                          phạm.</div>
+                        <div className="text-xs text-red-500 text-center py-4 font-bold">
+                          Không tìm thấy chi tiết vi phạm.
+                        </div>
                       ) : (
                         violations.map((v) => (
                           <div key={v.id} className="rounded-xl border border-red-200 bg-white p-3 text-xs shadow-sm">
@@ -675,7 +668,7 @@ export default function LeaderboardPage({ params }: { params: Promise<{ pin: str
                     </div>
                     <div className="mt-1 font-black text-violet-950 flex justify-center items-center gap-2">
                       <span className="text-3xl">
-                        {Math.trunc(selectedStudent.correctCount / selectedStudent.totalQuestions * 100)}%
+                        {selectedStudent.accuracy}%
                       </span>
                       <span className="text-lg">
                         ({selectedStudent.correctCount} / {selectedStudent.totalQuestions})

@@ -1,10 +1,9 @@
-import { DefaultEventsMap } from '@socket.io/component-emitter';
 import { io, type Socket } from 'socket.io-client';
-import { normalizeViolationType, RoomIdentificationPayload, type ViolationType } from './types';
+import { normalizeViolationType, RoomIdentificationPayload, SocketEnvelope, type ViolationType } from './types';
 
 const WS_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8080';
 
-export interface ServerToClientEvents {
+interface ServerToClientEvents {
   room_last_min: (data: never) => void;
   room_time_up: (data: never) => void;
   force_submit: (data: { roomId: number }) => void;
@@ -30,6 +29,10 @@ export interface ServerToClientEvents {
   }) => void;
 }
 
+type ClientToSocketEvents = Record<string, (payload?: unknown, ack?: (response: SocketEnvelope<any>) => void) => void>;
+
+export type RoomSocket = Socket<ServerToClientEvents, ClientToSocketEvents>;
+
 export function roomIdentification(code: string, id?: number): RoomIdentificationPayload {
   return { code, id };
 }
@@ -38,13 +41,13 @@ export function toBackendViolationType(type: string): ViolationType {
   return normalizeViolationType(type);
 }
 
-let socket: Socket<ServerToClientEvents, DefaultEventsMap> | null = null;
+let socket: RoomSocket | null = null;
 
 /**
  * Get or create the singleton Socket.IO connection to the roomws namespace.
  * The cookie (JWT) is sent automatically since we use withCredentials.
  */
-export function getSocket(): Socket<ServerToClientEvents, DefaultEventsMap> {
+export function getSocket(): RoomSocket {
   if (!socket) {
     socket = io(`${WS_URL}/roomws`, {
       withCredentials: true,

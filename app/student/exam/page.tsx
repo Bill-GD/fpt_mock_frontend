@@ -10,10 +10,18 @@ import {
   connectSocket,
   disconnectSocket,
   roomIdentification,
-  type Socket,
+  RoomSocket,
   toBackendViolationType,
 } from '@/lib/api/socket';
-import { Question, RoomStatus, UserRole, ViolationType } from '@/lib/api/types';
+import {
+  Question,
+  RoomStatus,
+  SocketEnvelope,
+  StudentJoinResponse,
+  StudentSubmitResponse,
+  UserRole,
+  ViolationType,
+} from '@/lib/api/types';
 import { useAuth } from '@/lib/auth-context';
 import { deferStateUpdate } from '@/lib/utils';
 import { useRouter, useSearchParams } from 'next/navigation';
@@ -49,7 +57,7 @@ function StudentExamRunnerContent() {
   const [attemptId, setAttemptId] = useState<number | null>(null);
   
   // Socket — ref tránh stale closure (room_time_up đăng ký trước khi có examId).
-  const socketRef = useRef<Socket | null>(null);
+  const socketRef = useRef<RoomSocket | null>(null);
   const handleAutoSubmitRef = useRef<() => void>(() => {});
   // B5 FIX: track examId in a ref so handleAutoSubmit always reads the latest value
   const examIdRef = useRef<number | null>(null);
@@ -179,25 +187,24 @@ function StudentExamRunnerContent() {
     }
     
     const handleJoin = () => {
-      s.emit('join', roomIdentification(examCode), (res: any) => {
-        console.log('[Student WS] join:', res);
+      s.emit('join', roomIdentification(examCode), (res: SocketEnvelope<StudentJoinResponse>) => {
         if (res?.error) {
           toast.push({ title: 'Không thể vào phòng thi', message: res.error, variant: 'danger' });
           deferStateUpdate(() => setLoadingExam(false));
           return;
         }
-        if (res?.attemptId) {
-          setAttemptId(res.attemptId);
+        if (res.data.attemptId) {
+          setAttemptId(res.data.attemptId);
         }
-        if (res?.status === RoomStatus.waiting) {
+        if (res.data.status === RoomStatus.waiting) {
           setWaitingForStart(true);
           deferStateUpdate(() => setLoadingExam(false));
-        } else if (res?.status === RoomStatus.active) {
+        } else if (res.data.status === RoomStatus.active) {
           setWaitingForStart(false);
           let secsLeft: number | undefined;
-          if (res.endTime) {
+          if (res.data.endTime) {
             const now = Date.now();
-            const end = new Date(res.endTime).getTime();
+            const end = new Date(res.data.endTime).getTime();
             secsLeft = Math.max(0, Math.floor((end - now) / 1000));
           }
           
@@ -206,14 +213,14 @@ function StudentExamRunnerContent() {
           if (storedExamId) {
             const eid = Number(storedExamId);
             setExamId(eid);
-            loadExam(eid, res.previousAnswers, secsLeft);
+            void loadExam(eid, res.data.previousAnswers, secsLeft);
           } else {
             // Student navigated directly (e.g. page refresh) — resolve examId via public API
             getRoomPublicInfo(examCode).then((info) => {
               if (info?.examId) {
                 sessionStorage.setItem(`room_${roomId}_examId`, String(info.examId));
                 setExamId(info.examId);
-                loadExam(info.examId, res.previousAnswers, secsLeft);
+                void loadExam(info.examId, res.data.previousAnswers, secsLeft);
               } else {
                 toast.push({ title: 'Lỗi tải đề thi', message: 'Không tìm thấy thông tin phòng.', variant: 'danger' });
                 deferStateUpdate(() => setLoadingExam(false));
@@ -241,14 +248,14 @@ function StudentExamRunnerContent() {
       if (storedExamId) {
         const eid = Number(storedExamId);
         setExamId(eid);
-        loadExam(eid, undefined, secsLeft);
+        void loadExam(eid, undefined, secsLeft);
       } else {
         // B4 FIX: fall back to API if sessionStorage was cleared
         getRoomPublicInfo(examCode).then((info) => {
           if (info?.examId) {
             sessionStorage.setItem(`room_${roomId}_examId`, String(info.examId));
             setExamId(info.examId);
-            loadExam(info.examId, undefined, secsLeft);
+            void loadExam(info.examId, undefined, secsLeft);
           }
         }).catch(() => {
           toast.push({ title: 'Lỗi tải đề thi', variant: 'danger' });
@@ -283,7 +290,7 @@ function StudentExamRunnerContent() {
   // B11 FIX: Use a ref for the timer ID to avoid multiple concurrent intervals.
   // The old dependency [timeLeftSeconds > 0, submitted] was a boolean expression
   // that only triggered on 0↔positive transition, causing duplicate timers on re-renders.
-  const timerRef = useRef<any>(null);
+  const timerRef = useRef<number | null>(null);
   
   useEffect(() => {
     // Always clear any existing timer before (re-)starting
@@ -501,7 +508,7 @@ function StudentExamRunnerContent() {
     const currentSocket = socketRef.current;
     
     if (currentSocket && roomId && currentExamId) {
-      currentSocket.emit('submit', { roomId, examId: currentExamId }, (res: any) => {
+      currentSocket.emit('submit', { roomId, examId: currentExamId }, (res: SocketEnvelope<StudentSubmitResponse>) => {
         console.log('[Student WS] submit callback:', res);
         if (res?.error) {
           toast.push({
@@ -513,8 +520,8 @@ function StudentExamRunnerContent() {
           submittingRef.current = false;
           return;
         }
-        const correctCount = res?.correctCount ?? 0;
-        const total = res?.totalQuestions ?? questions.length;
+        const correctCount = res.data.correctCount ?? 0;
+        const total = res.data.totalQuestions ?? questions.length;
         const score = total > 0 ? parseFloat(((correctCount / total) * 10).toFixed(1)) : 0;
         setResult({ correctCount, total, score });
       });

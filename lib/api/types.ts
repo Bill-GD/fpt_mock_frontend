@@ -156,15 +156,24 @@ export type SocketEnvelope<T> = {
   error: string | null;
 }
 
-export type ErrorSocketEnvelope = Omit<SocketEnvelope<never>, 'error'> & { error: string };
+export type StudentJoinResponse = {
+  roomId: number,
+  status: RoomStatus,
+  attemptId: number,
+  endTime: string,
+  previousAnswers: { questionId: number, selectedOptionId: number }[],
+};
 
-/** Matches backend RoomIdentificationDto — `code` is always required (8 chars). */
+export type StudentSubmitResponse = {
+  correctCount: number,
+  totalQuestions: number,
+};
+
 export type RoomIdentificationPayload = {
   code: string;
   id?: number;
 };
 
-/** Matches backend StudentAnswerDto */
 export type StudentAnswerPayload = {
   roomId: number;
   examId: number;
@@ -172,7 +181,6 @@ export type StudentAnswerPayload = {
   optionId?: number;
 };
 
-/** Matches backend StudentViolationDto */
 export type StudentViolationPayload = {
   roomId: number;
   attemptId: number;

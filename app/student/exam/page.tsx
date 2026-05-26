@@ -118,10 +118,11 @@ function StudentExamRunnerContent() {
     [submitted, loadingExam],
   );
   
-  const loadExam = async (eid: number, prevAnswers?: {
-    questionId: number,
-    selectedOptionId: number
-  }[], initialSecsLeft?: number) => {
+  const loadExam = async (
+    eid: number,
+    prevAnswers?: { questionId: number, selectedOptionId: number }[],
+    initialSecsLeft?: number,
+  ) => {
     try {
       const detail = await getExamDetail(eid);
       setQuestions(detail.questions);
@@ -234,7 +235,6 @@ function StudentExamRunnerContent() {
       });
     };
     
-    handleJoin();
     s.on('connect', handleJoin);
     
     // Teacher started the exam — room is now ACTIVE

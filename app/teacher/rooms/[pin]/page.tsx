@@ -136,7 +136,6 @@ export default function TeacherRoomDetailPage({ params }: { params: Promise<{ pi
         message: `Thời gian: ${payload.durationMinutes} phút`,
         variant: 'success',
       });
-      void loadRoom();
     });
     
     s.on(
@@ -195,10 +194,7 @@ export default function TeacherRoomDetailPage({ params }: { params: Promise<{ pi
     
     s.on('room_time_up', () => {
       toastPush({ title: 'Hết giờ!', message: 'Phòng thi đã kết thúc.', variant: 'warning' });
-      void loadRoom();
     });
-    
-    s.on('force_submit', () => void loadRoom());
     
     s.on('room_ended', () => {
       setRoom((prev) => (prev ? { ...prev, status: RoomStatus.finished } : prev));
@@ -229,12 +225,6 @@ export default function TeacherRoomDetailPage({ params }: { params: Promise<{ pi
       s.off('room_ended');
     };
   }, [roomCode, roomId, loadRoom, toastPush]);
-  
-  useEffect(() => {
-    if (roomStatus !== RoomStatus.active) return;
-    const timer = setInterval(() => void loadRoom(), 8000);
-    return () => clearInterval(timer);
-  }, [roomStatus, loadRoom]);
   
   const handleStart = () => {
     if (!socket || !room) return;

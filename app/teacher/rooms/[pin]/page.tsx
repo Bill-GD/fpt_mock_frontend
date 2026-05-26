@@ -9,8 +9,8 @@ import { EmptyState } from '@/components/ui/empty-state';
 import { SkeletonGrid } from '@/components/ui/skeleton';
 import { useToast } from '@/components/ui/toast';
 import { getRoomDetail } from '@/lib/api/http';
-import { connectSocket, leaveQuizSocketRoom, roomIdentification, type Socket } from '@/lib/api/socket';
-import { ErrorSocketEnvelope, RoomDetail, RoomStatus, UserRole } from '@/lib/api/types';
+import { connectSocket, leaveQuizSocketRoom, roomIdentification, RoomSocket } from '@/lib/api/socket';
+import { RoomDetail, RoomStatus, UserRole } from '@/lib/api/types';
 import { useAuth } from '@/lib/auth-context';
 import { deferStateUpdate } from '@/lib/utils';
 import { useRouter } from 'next/navigation';
@@ -52,7 +52,7 @@ export default function TeacherRoomDetailPage({ params }: { params: Promise<{ pi
   const [loading, setLoading] = useState(true);
   const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
   const [selectedId, setSelectedId] = useState<number | null>(null);
-  const [socket, setSocket] = useState<Socket | null>(null);
+  const [socket, setSocket] = useState<RoomSocket | null>(null);
   const existingStudentIdsRef = useRef<Set<number>>(new Set());
   
   /* Load room data */
@@ -103,7 +103,7 @@ export default function TeacherRoomDetailPage({ params }: { params: Promise<{ pi
     if (!s.connected) s.connect();
     deferStateUpdate(() => setSocket(s));
     
-    s.emit('join', roomIdentification(roomCode, roomId), (res: ErrorSocketEnvelope) => {
+    s.emit('join', roomIdentification(roomCode, roomId), (res) => {
       if (res?.error) {
         toastPush({ title: 'Lỗi kết nối phòng thi', message: res.error, variant: 'danger' });
       }
@@ -243,18 +243,12 @@ export default function TeacherRoomDetailPage({ params }: { params: Promise<{ pi
       connectSocket();
       return;
     }
-    socket.emit('start', roomIdentification(room.code, roomId), (res: unknown) => {
-      console.log('[Teacher WS] start:', res);
-      if (res === 'Room started') {
+    socket.emit('start', roomIdentification(room.code, roomId), (res) => {
+      if (res.message === 'Room started') {
         toastPush({ title: 'Đã bắt đầu phòng thi!', variant: 'success' });
-        loadRoom();
+        void loadRoom();
       } else {
-        const message =
-          typeof res === 'string'
-            ? res
-            : (res as { error?: string; message?: string })?.error ??
-              (res as { message?: string })?.message ??
-              'Không thể bắt đầu phòng thi';
+        const message = res.error ?? res.message ?? 'Không thể bắt đầu phòng thi';
         toastPush({ title: 'Lỗi', message, variant: 'danger' });
       }
     });

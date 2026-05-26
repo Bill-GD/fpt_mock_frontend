@@ -263,8 +263,6 @@ export default function LeaderboardPage({ params }: { params: Promise<{ pin: str
     });
     
     s.on('room_start', () => void loadRoom());
-    s.on('room_time_up', () => void loadRoom());
-    s.on('force_submit', () => void loadRoom());
     
     s.on('room_ended', () => {
       setRoom((prev) => (prev ? { ...prev, status: RoomStatus.finished } : prev));
@@ -295,13 +293,6 @@ export default function LeaderboardPage({ params }: { params: Promise<{ pin: str
       }),
     );
   }, [leaderboard, selectedStudentId]);
-  
-  /* Fallback nhẹ khi đang thi (phòng hờ socket trễ) */
-  useEffect(() => {
-    if (roomStatus !== RoomStatus.active) return;
-    const timer = setInterval(() => void loadRoom(), 8000);
-    return () => clearInterval(timer);
-  }, [roomStatus, loadRoom]);
   
   // Fetch detailed violation data when selectedStudent changes
   const selectedAttemptId = selectedStudent?.attemptId ?? null;
